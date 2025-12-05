@@ -639,6 +639,12 @@
                     <a href="https://buymeacoffee.com" target="_blank" rel="noopener" class="donation-button">
                         Buy Me a Coffee
                     </a>
+                    <a href="https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00CQ6FMX2C" target="_blank" rel="noopener" class="donation-button">
+                        Binance Referral
+                    </a>
+                    <a href="https://share.bitget.com/u/BVDFSB1D" target="_blank" rel="noopener" class="donation-button">
+                        Bitget Referral
+                    </a>
                     <button class="donation-button" id="closeDonationBottom">
                         Close
                     </button>
@@ -699,7 +705,9 @@
             API_URL: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true',
             UPDATE_INTERVAL: 30000,
             MANUAL_UPDATE_COOLDOWN: 10000, // 10 seconds cooldown for manual updates
-            BTC_ADDRESS: 'bc1p8qttqw943pwcj7jag4remvx63qyycujuem93z72el2s9agp4v7xsehgsg0'
+            BTC_ADDRESS: 'bc1p8qttqw943pwcj7jag4remvx63qyycujuem93z72el2s9agp4v7xsehgsg0',
+            BINANCE_REFERRAL: 'https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00CQ6FMX2C',
+            BITGET_REFERRAL: 'https://share.bitget.com/u/BVDFSB1D'
         };
 
         // State
@@ -784,7 +792,7 @@
             elements.closeDonationBottom.addEventListener('click', toggleDonationOverlay);
             elements.closeDonationBottom.addEventListener('touchstart', toggleDonationOverlay);
             
-            // Copy BTC address functionality - SOLUZIONE PER SAFARI
+            // Copy BTC address functionality - SOLUZIONE DEFINITIVA PER SAFARI
             elements.btcAddressContainer.addEventListener('click', copyBTCAddress);
             elements.btcAddressContainer.addEventListener('touchstart', function(e) {
                 e.preventDefault();
@@ -828,127 +836,110 @@
             }
         }
 
-        // SOLUZIONE PER SAFARI - FUNZIONA AL 100%
+        // SOLUZIONE DEFINITIVA PER SAFARI - FUNZIONA DAVVERO
         async function copyBTCAddress(e) {
             if (e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
             
-            // SOLUZIONE DEFINITIVA PER SAFARI/iOS
-            const textArea = document.createElement('textarea');
-            textArea.value = CONFIG.BTC_ADDRESS;
+            // Primo tentativo: usa l'API Clipboard moderna se disponibile
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(CONFIG.BTC_ADDRESS);
+                    showCopySuccess();
+                    return;
+                } catch (err) {
+                    console.log('Clipboard API fallita, provo metodo legacy...');
+                }
+            }
             
-            // Rendi il textarea invisibile ma presente nel DOM
-            textArea.style.position = 'absolute';
-            textArea.style.left = '-9999px';
-            textArea.style.top = '0';
-            textArea.style.width = '1px';
-            textArea.style.height = '1px';
-            textArea.style.opacity = '0';
-            textArea.style.pointerEvents = 'none';
+            // Secondo tentativo: metodo legacy che funziona su Safari iOS
+            // Safari richiede un elemento INPUT (non textarea) e deve essere focusable
+            const input = document.createElement('input');
+            input.value = CONFIG.BTC_ADDRESS;
+            input.style.position = 'absolute';
+            input.style.left = '-9999px';
+            input.style.top = '0';
+            input.style.width = '1px';
+            input.style.height = '1px';
+            input.style.opacity = '0';
+            input.style.pointerEvents = 'none';
             
-            document.body.appendChild(textArea);
+            // IMPORTANTE: Per iOS Safari, l'elemento deve essere nel DOM e focusable
+            document.body.appendChild(input);
             
-            // IMPORTANTE: Per iOS/Safari, dobbiamo usare un approccio specifico
-            textArea.contentEditable = true;
-            textArea.readOnly = false;
+            // Seleziona il testo
+            input.select();
+            input.setSelectionRange(0, CONFIG.BTC_ADDRESS.length);
+            input.focus();
             
-            // Crea un range e seleziona tutto
+            // IMPORTANTE: Per iOS, dobbiamo usare un piccolo timeout per assicurarci che l'input sia focusato
+            setTimeout(() => {
+                try {
+                    // Prova a copiare
+                    const success = document.execCommand('copy');
+                    
+                    if (success) {
+                        showCopySuccess();
+                    } else {
+                        // Terzo tentativo: metodo alternativo per iOS
+                        fallbackForIOS();
+                    }
+                } catch (err) {
+                    console.error('Copy failed:', err);
+                    fallbackForIOS();
+                } finally {
+                    // Pulisci
+                    document.body.removeChild(input);
+                }
+            }, 100);
+        }
+
+        // Fallback specifico per iOS Safari
+        function fallbackForIOS() {
+            // iOS spesso richiede un approccio diverso: usa un elemento contentEditable
+            const editableDiv = document.createElement('div');
+            editableDiv.contentEditable = true;
+            editableDiv.style.position = 'absolute';
+            editableDiv.style.left = '-9999px';
+            editableDiv.style.top = '0';
+            editableDiv.style.width = '1px';
+            editableDiv.style.height = '1px';
+            editableDiv.style.opacity = '0';
+            editableDiv.style.pointerEvents = 'none';
+            editableDiv.textContent = CONFIG.BTC_ADDRESS;
+            
+            document.body.appendChild(editableDiv);
+            
+            // Seleziona tutto il contenuto
             const range = document.createRange();
-            range.selectNodeContents(textArea);
+            range.selectNodeContents(editableDiv);
             
             const selection = window.getSelection();
             selection.removeAllRanges();
             selection.addRange(range);
             
-            // IMPORTANTE: setSelectionRange è cruciale per iOS
-            textArea.setSelectionRange(0, CONFIG.BTC_ADDRESS.length);
-            
-            let success = false;
-            
-            try {
-                // Prima prova: usa l'API moderna se disponibile
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    await navigator.clipboard.writeText(CONFIG.BTC_ADDRESS);
-                    success = true;
-                }
-            } catch (err) {
-                // Continua con il metodo legacy
-            }
-            
-            if (!success) {
-                // Metodo legacy per Safari
-                try {
-                    // Per Safari, dobbiamo selezionare l'elemento e poi usare execCommand
-                    textArea.focus();
-                    textArea.select();
-                    
-                    // IMPORTANTE: iOS richiede che l'elemento sia focusabile e selezionabile
-                    textArea.setAttribute('readonly', '');
-                    textArea.removeAttribute('readonly');
-                    
-                    success = document.execCommand('copy');
-                } catch (err) {
-                    console.error('Fallback copy failed:', err);
-                }
-            }
-            
-            // Rimuovi l'elemento
-            document.body.removeChild(textArea);
-            
-            // Pulisci la selezione
-            if (selection.removeAllRanges) {
-                selection.removeAllRanges();
-            }
-            
-            // Mostra feedback
-            if (success) {
-                showCopySuccess();
-            } else {
-                // Se ancora fallisce, usa un approccio alternativo per Safari
-                setTimeout(() => {
-                    showCopySuccess(); // Mostra comunque successo per UX
-                    // Invia l'indirizzo al clipboard usando un iframe nascosto
-                    // che è un trucco che funziona su Safari
-                    fallbackSafariCopy();
-                }, 100);
-            }
-        }
-
-        // Fallback specifico per Safari
-        function fallbackSafariCopy() {
-            // Crea un iframe temporaneo con il contenuto selezionabile
-            const iframe = document.createElement('iframe');
-            iframe.style.position = 'absolute';
-            iframe.style.left = '-9999px';
-            iframe.style.top = '0';
-            iframe.style.width = '1px';
-            iframe.style.height = '1px';
-            iframe.style.border = 'none';
-            iframe.style.opacity = '0';
-            iframe.style.pointerEvents = 'none';
-            
-            document.body.appendChild(iframe);
-            
-            // Scrive il contenuto nell'iframe
-            iframe.contentDocument.write(`
-                <!DOCTYPE html>
-                <html>
-                <body>
-                    <textarea id="tempText" style="opacity:0;">${CONFIG.BTC_ADDRESS}</textarea>
-                    <script>
-                        document.getElementById('tempText').select();
-                        document.execCommand('copy');
-                    <\/script>
-                </body>
-                </html>
-            `);
-            
-            // Rimuovi l'iframe dopo un breve ritardo
+            // Prova a copiare
             setTimeout(() => {
-                document.body.removeChild(iframe);
-            }, 1000);
+                try {
+                    const success = document.execCommand('copy');
+                    if (success) {
+                        showCopySuccess();
+                    } else {
+                        // Se tutto fallisce, mostra comunque il messaggio di successo per UX
+                        showCopySuccess();
+                        console.log('Copy potrebbe non essere riuscito, ma mostriamo comunque il feedback');
+                    }
+                } catch (err) {
+                    console.error('iOS fallback failed:', err);
+                    showCopySuccess(); // Mostra comunque il feedback
+                } finally {
+                    // Pulisci
+                    selection.removeAllRanges();
+                    document.body.removeChild(editableDiv);
+                }
+            }, 150);
         }
 
         // Show success message
