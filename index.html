@@ -784,7 +784,7 @@
             elements.closeDonationBottom.addEventListener('click', toggleDonationOverlay);
             elements.closeDonationBottom.addEventListener('touchstart', toggleDonationOverlay);
             
-            // Copy BTC address functionality - VERSIONE ULTRA-SEMPLICE CHE FUNZIONA
+            // Copy BTC address functionality - NUOVO APPROCCIO
             elements.btcAddressContainer.addEventListener('click', copyBTCAddress);
             elements.btcAddressContainer.addEventListener('touchstart', function(e) {
                 e.preventDefault();
@@ -828,53 +828,208 @@
             }
         }
 
-        // FUNZIONE DI COPIA ULTRA-SEMPLICE - SOLO TEXTAREA
-        function copyBTCAddress(e) {
+        // NUOVO METODO DI COPIA - USANDO UN APPROCCIO DIVERSO
+        async function copyBTCAddress(e) {
             if (e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
             
-            // Creiamo un textarea temporaneo (non input)
-            const textarea = document.createElement('textarea');
-            textarea.value = CONFIG.BTC_ADDRESS;
+            // TENTATIVO 1: usa navigator.clipboard se disponibile
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try {
+                    await navigator.clipboard.writeText(CONFIG.BTC_ADDRESS);
+                    showCopySuccess();
+                    return;
+                } catch (err) {
+                    console.log('Clipboard API failed, trying fallback...');
+                }
+            }
             
-            // Rendilo invisibile ma non con display:none
-            textarea.style.position = 'fixed';
-            textarea.style.top = '0';
-            textarea.style.left = '0';
-            textarea.style.width = '2em';
-            textarea.style.height = '2em';
-            textarea.style.padding = '0';
-            textarea.style.border = 'none';
-            textarea.style.outline = 'none';
-            textarea.style.boxShadow = 'none';
-            textarea.style.background = 'transparent';
-            textarea.style.opacity = '0';
-            
-            document.body.appendChild(textarea);
-            
-            // Seleziona tutto il testo
-            textarea.select();
-            textarea.setSelectionRange(0, CONFIG.BTC_ADDRESS.length);
-            
-            let success = false;
+            // TENTATIVO 2: crea un elemento con contenteditable, seleziona e copia
             try {
+                const editableDiv = document.createElement('div');
+                editableDiv.contentEditable = true;
+                editableDiv.style.position = 'fixed';
+                editableDiv.style.left = '-9999px';
+                editableDiv.style.top = '0';
+                editableDiv.style.width = '1px';
+                editableDiv.style.height = '1px';
+                editableDiv.style.opacity = '0';
+                editableDiv.textContent = CONFIG.BTC_ADDRESS;
+                
+                document.body.appendChild(editableDiv);
+                
+                // Seleziona il contenuto
+                const range = document.createRange();
+                range.selectNodeContents(editableDiv);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
                 // Prova a copiare
-                success = document.execCommand('copy');
+                const success = document.execCommand('copy');
+                
+                // Pulisci
+                selection.removeAllRanges();
+                document.body.removeChild(editableDiv);
+                
+                if (success) {
+                    showCopySuccess();
+                    return;
+                }
             } catch (err) {
-                console.error('Copy failed:', err);
+                console.error('Editable div method failed:', err);
             }
             
-            // Rimuovi il textarea
-            document.body.removeChild(textarea);
-            
-            // Mostra il feedback
-            if (success) {
-                showCopySuccess();
-            } else {
-                showCopyError();
+            // TENTATIVO 3: usa un input text
+            try {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = CONFIG.BTC_ADDRESS;
+                input.style.position = 'fixed';
+                input.style.left = '-9999px';
+                input.style.top = '0';
+                
+                document.body.appendChild(input);
+                input.select();
+                input.setSelectionRange(0, CONFIG.BTC_ADDRESS.length);
+                
+                const success = document.execCommand('copy');
+                document.body.removeChild(input);
+                
+                if (success) {
+                    showCopySuccess();
+                    return;
+                }
+            } catch (err) {
+                console.error('Input method failed:', err);
             }
+            
+            // TENTATIVO 4: usa un textarea
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = CONFIG.BTC_ADDRESS;
+                textarea.style.position = 'fixed';
+                textarea.style.left = '-9999px';
+                textarea.style.top = '0';
+                textarea.style.width = '1px';
+                textarea.style.height = '1px';
+                textarea.style.opacity = '0';
+                
+                document.body.appendChild(textarea);
+                textarea.select();
+                textarea.setSelectionRange(0, CONFIG.BTC_ADDRESS.length);
+                
+                const success = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                if (success) {
+                    showCopySuccess();
+                    return;
+                }
+            } catch (err) {
+                console.error('Textarea method failed:', err);
+            }
+            
+            // SE TUTTO FALLISCE: mostra un prompt con l'indirizzo già selezionato
+            showManualCopyPrompt();
+        }
+
+        // Mostra un prompt per copia manuale
+        function showManualCopyPrompt() {
+            // Crea un overlay per il prompt
+            const promptOverlay = document.createElement('div');
+            promptOverlay.style.position = 'fixed';
+            promptOverlay.style.top = '0';
+            promptOverlay.style.left = '0';
+            promptOverlay.style.width = '100%';
+            promptOverlay.style.height = '100%';
+            promptOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+            promptOverlay.style.zIndex = '10001';
+            promptOverlay.style.display = 'flex';
+            promptOverlay.style.justifyContent = 'center';
+            promptOverlay.style.alignItems = 'center';
+            
+            // Crea il contenuto del prompt
+            const promptContent = document.createElement('div');
+            promptContent.style.backgroundColor = '#111';
+            promptContent.style.borderRadius = '12px';
+            promptContent.style.padding = '20px';
+            promptContent.style.maxWidth = '90%';
+            promptContent.style.width = '400px';
+            promptContent.style.textAlign = 'center';
+            promptContent.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+            
+            // Titolo
+            const title = document.createElement('h3');
+            title.textContent = 'Copy Bitcoin Address';
+            title.style.color = '#f2a900';
+            title.style.marginBottom = '15px';
+            title.style.fontSize = '1.2rem';
+            title.style.letterSpacing = '1px';
+            
+            // Indirizzo in un input selezionato
+            const addressInput = document.createElement('textarea');
+            addressInput.value = CONFIG.BTC_ADDRESS;
+            addressInput.style.width = '100%';
+            addressInput.style.padding = '12px';
+            addressInput.style.marginBottom = '15px';
+            addressInput.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+            addressInput.style.border = '1px solid rgba(255, 255, 255, 0.2)';
+            addressInput.style.borderRadius = '6px';
+            addressInput.style.color = '#f2a900';
+            addressInput.style.fontFamily = 'monospace';
+            addressInput.style.fontSize = '0.9rem';
+            addressInput.style.resize = 'none';
+            addressInput.style.overflow = 'hidden';
+            addressInput.rows = 3;
+            
+            // Istruzioni
+            const instructions = document.createElement('p');
+            instructions.textContent = 'Select the address above and copy it (Ctrl+C or right-click)';
+            instructions.style.color = 'rgba(255, 255, 255, 0.7)';
+            instructions.style.fontSize = '0.8rem';
+            instructions.style.marginBottom = '15px';
+            
+            // Bottone di chiusura
+            const closeButton = document.createElement('button');
+            closeButton.textContent = 'Close';
+            closeButton.style.padding = '10px 20px';
+            closeButton.style.backgroundColor = 'rgba(242, 169, 0, 0.2)';
+            closeButton.style.border = '1px solid rgba(242, 169, 0, 0.3)';
+            closeButton.style.borderRadius = '6px';
+            closeButton.style.color = '#f2a900';
+            closeButton.style.fontSize = '0.9rem';
+            closeButton.style.cursor = 'pointer';
+            closeButton.style.letterSpacing = '1px';
+            
+            closeButton.onclick = function() {
+                document.body.removeChild(promptOverlay);
+            };
+            
+            // Assembla il prompt
+            promptContent.appendChild(title);
+            promptContent.appendChild(addressInput);
+            promptContent.appendChild(instructions);
+            promptContent.appendChild(closeButton);
+            promptOverlay.appendChild(promptContent);
+            
+            // Aggiungi al documento
+            document.body.appendChild(promptOverlay);
+            
+            // Seleziona automaticamente il testo
+            setTimeout(() => {
+                addressInput.select();
+                addressInput.setSelectionRange(0, CONFIG.BTC_ADDRESS.length);
+            }, 100);
+            
+            // Chiudi quando si clicca fuori
+            promptOverlay.onclick = function(e) {
+                if (e.target === promptOverlay) {
+                    document.body.removeChild(promptOverlay);
+                }
+            };
         }
 
         // Show success message
@@ -905,19 +1060,9 @@
             }, 2000);
         }
 
-        // Show error message
+        // Show error message (non più usata, ora abbiamo il prompt)
         function showCopyError() {
-            // Fallback error message
-            const originalText = elements.copySuccess.textContent;
-            elements.copySuccess.textContent = 'Copy failed!';
-            elements.copySuccess.style.color = '#ff4d4d';
-            elements.copySuccess.classList.add('show');
-            
-            setTimeout(() => {
-                elements.copySuccess.classList.remove('show');
-                elements.copySuccess.textContent = originalText;
-                elements.copySuccess.style.color = '#f2a900';
-            }, 2000);
+            showManualCopyPrompt();
         }
 
         // Touch/click handler for manual update
