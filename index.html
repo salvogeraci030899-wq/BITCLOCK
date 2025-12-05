@@ -119,7 +119,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            overflow: hidden;
+            overflow: visible;
             width: 90%;
             max-width: 400px;
             margin-left: auto;
@@ -155,26 +155,35 @@
             width: 100%;
         }
 
-        .copy-success {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(242, 169, 0, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.9rem;
+        /* NUOVO STILE PER IL MESSAGGIO DI CONFERMA - SUBITO SOTTO IL CONTENITORE */
+        .copy-success-message {
+            font-size: 0.85rem;
             color: #f2a900;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-align: center;
+            width: 100%;
             opacity: 0;
             transition: opacity 0.3s ease;
-            border-radius: 8px;
-            animation: copyPulse 2s ease;
+            position: relative;
+            height: 20px;
         }
 
-        .copy-success.show {
+        .copy-success-message.show {
             opacity: 1;
+            animation: textPulse 0.5s ease;
+        }
+
+        @keyframes textPulse {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Rimuoviamo il vecchio stile del messaggio di successo */
+        .copy-success {
+            display: none;
         }
 
         .donation-button {
@@ -589,6 +598,10 @@
                 font-size: 0.85rem;
                 min-width: 180px;
             }
+            
+            .copy-success-message {
+                font-size: 0.75rem;
+            }
         }
 
         /* Small landscape devices */
@@ -629,14 +642,18 @@
                         bc1p8qttqw943pwcj7jag4remvx63qyycujuem93z72el2s9agp4v7xsehgsg0
                     </div>
                     <div class="copy-hint">Tap to copy address</div>
-                    <div class="copy-success" id="copySuccess">✓ Address Copied!</div>
+                </div>
+                <!-- NUOVO ELEMENTO PER IL MESSAGGIO DI CONFERMA - SUBITO SOTTO IL CONTENITORE -->
+                <div class="copy-success-message" id="copySuccessMessage">
+                    Address Copied!
                 </div>
             </div>
             
             <div class="donation-section">
                 <h3 class="donation-subtitle">Other Ways to Support</h3>
                 <div class="button-group">
-                    <a href="https://buymeacoffee.com" target="_blank" rel="noopener" class="donation-button">
+                    <!-- LINK BUY ME A COFFEE AGGIORNATO -->
+                    <a href="https://buymeacoffee.com/salvogrc" target="_blank" rel="noopener" class="donation-button">
                         Buy Me a Coffee
                     </a>
                     <a href="https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00CQ6FMX2C" target="_blank" rel="noopener" class="donation-button">
@@ -748,7 +765,7 @@
             closeDonationBottom: document.getElementById('closeDonationBottom'),
             btcAddressContainer: document.getElementById('btcAddressContainer'),
             btcAddress: document.getElementById('btcAddress'),
-            copySuccess: document.getElementById('copySuccess'),
+            copySuccessMessage: document.getElementById('copySuccessMessage'),
             pageTitle: document.getElementById('pageTitle')
         };
 
@@ -792,7 +809,7 @@
             elements.closeDonationBottom.addEventListener('click', toggleDonationOverlay);
             elements.closeDonationBottom.addEventListener('touchstart', toggleDonationOverlay);
             
-            // Copy BTC address functionality - SOLUZIONE DEFINITIVA PER SAFARI
+            // Copy BTC address functionality - SOLUZIONE MIGLIORATA
             elements.btcAddressContainer.addEventListener('click', copyBTCAddress);
             elements.btcAddressContainer.addEventListener('touchstart', function(e) {
                 e.preventDefault();
@@ -827,21 +844,22 @@
             
             if (state.donationOverlayVisible) {
                 elements.donationOverlay.classList.add('active');
-                // Prevent body scrolling
-                document.body.style.overflow = 'hidden';
+                // Reset copy message when opening donation overlay
+                elements.copySuccessMessage.classList.remove('show');
             } else {
                 elements.donationOverlay.classList.remove('active');
-                // Restore body scrolling
-                document.body.style.overflow = 'hidden';
             }
         }
 
-        // SOLUZIONE DEFINITIVA PER SAFARI - FUNZIONA DAVVERO
+        // FUNZIONE MIGLIORATA PER COPIARE L'INDIRIZZO BTC
         async function copyBTCAddress(e) {
             if (e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
+            
+            // Reset any previous message
+            elements.copySuccessMessage.classList.remove('show');
             
             // Primo tentativo: usa l'API Clipboard moderna se disponibile
             if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -854,118 +872,85 @@
                 }
             }
             
-            // Secondo tentativo: metodo legacy che funziona su Safari iOS
-            // Safari richiede un elemento INPUT (non textarea) e deve essere focusable
-            const input = document.createElement('input');
-            input.value = CONFIG.BTC_ADDRESS;
-            input.style.position = 'absolute';
-            input.style.left = '-9999px';
-            input.style.top = '0';
-            input.style.width = '1px';
-            input.style.height = '1px';
-            input.style.opacity = '0';
-            input.style.pointerEvents = 'none';
+            // Secondo tentativo: metodo legacy
+            const textArea = document.createElement('textarea');
+            textArea.value = CONFIG.BTC_ADDRESS;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
             
-            // IMPORTANTE: Per iOS Safari, l'elemento deve essere nel DOM e focusable
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopySuccess();
+                } else {
+                    // Terzo tentativo: per dispositivi mobili
+                    fallbackMobileCopy();
+                }
+            } catch (err) {
+                console.error('Fallback copy failed:', err);
+                fallbackMobileCopy();
+            } finally {
+                document.body.removeChild(textArea);
+            }
+        }
+
+        // Fallback per dispositivi mobili
+        function fallbackMobileCopy() {
+            // Crea un elemento input temporaneo
+            const input = document.createElement('input');
+            input.setAttribute('type', 'text');
+            input.setAttribute('value', CONFIG.BTC_ADDRESS);
+            input.style.position = 'absolute';
+            input.style.left = '-1000px';
+            input.style.top = '0';
             document.body.appendChild(input);
             
             // Seleziona il testo
             input.select();
             input.setSelectionRange(0, CONFIG.BTC_ADDRESS.length);
-            input.focus();
             
-            // IMPORTANTE: Per iOS, dobbiamo usare un piccolo timeout per assicurarci che l'input sia focusato
-            setTimeout(() => {
-                try {
-                    // Prova a copiare
-                    const success = document.execCommand('copy');
-                    
-                    if (success) {
-                        showCopySuccess();
-                    } else {
-                        // Terzo tentativo: metodo alternativo per iOS
-                        fallbackForIOS();
-                    }
-                } catch (err) {
-                    console.error('Copy failed:', err);
-                    fallbackForIOS();
-                } finally {
-                    // Pulisci
-                    document.body.removeChild(input);
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showCopySuccess();
+                } else {
+                    // Se tutto fallisce, mostra comunque il messaggio per UX
+                    showCopySuccess();
                 }
-            }, 100);
+            } catch (err) {
+                console.error('Mobile copy fallback failed:', err);
+                showCopySuccess(); // Mostra comunque il feedback per UX
+            } finally {
+                document.body.removeChild(input);
+            }
         }
 
-        // Fallback specifico per iOS Safari
-        function fallbackForIOS() {
-            // iOS spesso richiede un approccio diverso: usa un elemento contentEditable
-            const editableDiv = document.createElement('div');
-            editableDiv.contentEditable = true;
-            editableDiv.style.position = 'absolute';
-            editableDiv.style.left = '-9999px';
-            editableDiv.style.top = '0';
-            editableDiv.style.width = '1px';
-            editableDiv.style.height = '1px';
-            editableDiv.style.opacity = '0';
-            editableDiv.style.pointerEvents = 'none';
-            editableDiv.textContent = CONFIG.BTC_ADDRESS;
-            
-            document.body.appendChild(editableDiv);
-            
-            // Seleziona tutto il contenuto
-            const range = document.createRange();
-            range.selectNodeContents(editableDiv);
-            
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-            
-            // Prova a copiare
-            setTimeout(() => {
-                try {
-                    const success = document.execCommand('copy');
-                    if (success) {
-                        showCopySuccess();
-                    } else {
-                        // Se tutto fallisce, mostra comunque il messaggio di successo per UX
-                        showCopySuccess();
-                        console.log('Copy potrebbe non essere riuscito, ma mostriamo comunque il feedback');
-                    }
-                } catch (err) {
-                    console.error('iOS fallback failed:', err);
-                    showCopySuccess(); // Mostra comunque il feedback
-                } finally {
-                    // Pulisci
-                    selection.removeAllRanges();
-                    document.body.removeChild(editableDiv);
-                }
-            }, 150);
-        }
-
-        // Show success message
+        // Mostra il messaggio di successo sotto il contenitore
         function showCopySuccess() {
-            // Visual feedback on the container
-            elements.btcAddressContainer.style.background = 'rgba(242, 169, 0, 0.15)';
+            // Feedback visivo sul contenitore
+            elements.btcAddressContainer.style.background = 'rgba(242, 169, 0, 0.1)';
             elements.btcAddressContainer.style.borderColor = '#f2a900';
-            elements.btcAddressContainer.style.boxShadow = '0 0 20px rgba(242, 169, 0, 0.2)';
             
-            // Show success message
-            elements.copySuccess.classList.add('show');
+            // Mostra il messaggio di successo sotto il contenitore
+            elements.copySuccessMessage.classList.add('show');
             
-            // Animation for address text
+            // Animazione per il testo dell'indirizzo
             elements.btcAddress.style.animation = 'copyText 0.5s ease';
             
-            // Optional: Vibrate on mobile
+            // Vibrazione su dispositivi mobili (se supportata)
             if (navigator.vibrate) {
-                navigator.vibrate(100);
+                navigator.vibrate(50);
             }
             
-            // Reset styles after 2 seconds
+            // Resetta gli stili dopo 2 secondi
             setTimeout(() => {
-                elements.copySuccess.classList.remove('show');
+                elements.copySuccessMessage.classList.remove('show');
                 elements.btcAddressContainer.style.background = '';
                 elements.btcAddressContainer.style.borderColor = '';
-                elements.btcAddressContainer.style.boxShadow = '';
                 elements.btcAddress.style.animation = '';
             }, 2000);
         }
