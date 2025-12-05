@@ -12,7 +12,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
             background: #000000;
             color: #ffffff;
             min-height: 100vh;
@@ -21,182 +21,188 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            padding: 20px;
         }
 
         .container {
             width: 100%;
-            max-width: 600px;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
         .title {
             font-weight: 300;
-            font-size: 48px;
+            font-size: 2.5rem;
             letter-spacing: 8px;
-            margin-bottom: 30px;
-            color: #ffffff;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.9);
             text-transform: uppercase;
         }
 
         .clock-container {
             position: relative;
-            width: 95vmin;
-            height: 95vmin;
+            width: 85vmin;
+            height: 85vmin;
             max-width: 500px;
             max-height: 500px;
             min-width: 320px;
             min-height: 320px;
-            margin: 0 auto 40px;
         }
 
+        /* Perfect clock face */
         .clock-face {
             position: absolute;
             width: 100%;
             height: 100%;
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 50%;
             box-shadow: 
                 inset 0 0 0 1px rgba(255, 255, 255, 0.05),
-                0 0 100px rgba(0, 0, 0, 0.95);
+                0 0 0 1px rgba(0, 0, 0, 0.8);
         }
 
-        /* Perfectly positioned ticks */
-        .tick {
+        /* Perfect tick marks - 60 total */
+        .tick-mark {
             position: absolute;
-            background: rgba(255, 255, 255, 0.9);
-            transform-origin: 50% 50%;
-        }
-
-        .hour-tick {
-            width: 2px;
-            height: 20px;
-            top: 0;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .minor-tick {
             width: 1px;
-            height: 12px;
-            top: 0;
+            background: rgba(255, 255, 255, 0.7);
             left: 50%;
-            transform: translateX(-50%);
+            transform-origin: 50% 100%;
         }
 
-        /* Price labels - minimal */
+        .tick-hour {
+            height: 16px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .tick-five {
+            height: 12px;
+        }
+
+        .tick-minute {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Price labels - perfectly positioned */
         .price-label {
             position: absolute;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
             font-weight: 300;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             transform: translate(-50%, -50%);
-            pointer-events: none;
+            font-variant-numeric: tabular-nums;
         }
 
-        /* Hands - perfectly centered */
+        /* Hands - perfectly centered and sized */
+        .hands-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
         .hand {
             position: absolute;
+            transform-origin: 50% 100%;
             left: 50%;
             bottom: 50%;
-            transform-origin: 50% 100%;
-            transform: translateX(-50%) rotate(0deg);
             border-radius: 1px;
             transition: transform 0.6s cubic-bezier(0.4, 2.3, 0.8, 1);
-            z-index: 10;
+            transform: translateX(-50%) rotate(0deg);
         }
 
         .hour-hand {
-            width: 3px;
-            height: 35%;
+            width: 2.5px;
+            height: 28%;
             background: #ffffff;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.7);
+            z-index: 2;
+            box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
         }
 
         .minute-hand {
-            width: 2px;
-            height: 45%;
+            width: 1.5px;
+            height: 38%;
             background: #ffffff;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            z-index: 3;
         }
 
         .center-dot {
             position: absolute;
-            width: 10px;
-            height: 10px;
+            width: 9px;
+            height: 9px;
             background: #ffffff;
             border-radius: 50%;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 20;
-            box-shadow: 
-                0 0 20px rgba(255, 255, 255, 0.9),
-                inset 0 0 5px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.5);
         }
 
         /* Price display - minimal */
         .price-display {
+            margin-top: 40px;
             text-align: center;
-            margin-top: 30px;
-            width: 100%;
         }
 
         .current-price {
-            font-size: 42px;
+            font-size: 2.8rem;
             font-weight: 300;
-            letter-spacing: 3px;
+            letter-spacing: 1px;
             color: #ffffff;
             font-variant-numeric: tabular-nums;
-            font-family: 'SF Mono', 'Roboto Mono', monospace;
-            margin-bottom: 10px;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
         }
 
-        .price-change {
-            font-size: 16px;
+        .price-details {
+            margin-top: 20px;
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .detail {
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 1rem;
             font-weight: 300;
-            letter-spacing: 1.5px;
-            color: #888888;
+            font-family: 'SF Mono', monospace;
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .positive {
-            color: #4CAF50;
+            color: #00ff9d;
         }
 
         .negative {
-            color: #F44336;
+            color: #ff4d4d;
         }
 
-        /* Loading */
         .loading {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 100;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 14px;
-            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             font-weight: 300;
-        }
-
-        .loading-spinner {
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-top: 2px solid rgba(255, 255, 255, 0.8);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 15px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
         }
 
         /* Status indicator */
@@ -204,101 +210,71 @@
             position: fixed;
             bottom: 20px;
             right: 20px;
-            font-size: 11px;
+            font-size: 0.7rem;
             color: rgba(255, 255, 255, 0.3);
             letter-spacing: 1px;
             font-weight: 300;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .title {
-                font-size: 36px;
-                letter-spacing: 6px;
-                margin-bottom: 20px;
-            }
-            
+        /* Perfect positioning for all ticks */
+        @media (max-width: 600px) {
             .clock-container {
                 width: 90vmin;
                 height: 90vmin;
+            }
+            
+            .title {
+                font-size: 2rem;
+                letter-spacing: 6px;
                 margin-bottom: 30px;
             }
             
             .current-price {
-                font-size: 36px;
-                letter-spacing: 2px;
+                font-size: 2.2rem;
             }
             
-            .price-label {
-                font-size: 14px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .title {
-                font-size: 28px;
-                letter-spacing: 4px;
-            }
-            
-            .clock-container {
-                width: 85vmin;
-                height: 85vmin;
-                min-width: 280px;
-                min-height: 280px;
-            }
-            
-            .current-price {
-                font-size: 32px;
-            }
-            
-            .price-label {
-                font-size: 12px;
-            }
-            
-            .hour-tick {
-                height: 16px;
-                width: 1.5px;
-            }
-            
-            .minor-tick {
-                height: 10px;
-            }
-            
-            .hour-hand {
-                width: 2.5px;
-            }
-            
-            .minute-hand {
-                width: 1.5px;
+            .price-details {
+                flex-direction: column;
+                gap: 15px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="title">BTCLOCK</h1>
+        <h1 class="title">BTClock</h1>
         
         <div class="clock-container">
             <div class="clock-face"></div>
-            <!-- Ticks and labels generated by JavaScript -->
             
-            <div class="hour-hand"></div>
-            <div class="minute-hand"></div>
+            <!-- Ticks and labels will be generated by JavaScript -->
+            
+            <div class="hands-container">
+                <div class="hand hour-hand"></div>
+                <div class="hand minute-hand"></div>
+            </div>
             <div class="center-dot"></div>
             
-            <div class="loading">
-                <div class="loading-spinner"></div>
-                CONNECTING
-            </div>
+            <div class="loading">Loading</div>
         </div>
         
         <div class="price-display">
             <div class="current-price">$<span id="currentPrice">00,000</span></div>
-            <div class="price-change" id="priceChange">—</div>
+            
+            <div class="price-details">
+                <div class="detail">
+                    <div class="detail-label">Change</div>
+                    <div class="detail-value positive" id="priceChange">+0.00%</div>
+                </div>
+                <div class="detail">
+                    <div class="detail-label">Range</div>
+                    <div class="detail-value" id="hourRange">$00k-00k</div>
+                </div>
+            </div>
         </div>
+        
+        <div class="status" id="status">Live</div>
     </div>
-    
-    <div class="status" id="status">● LIVE</div>
 
     <script>
         // Configuration
@@ -306,201 +282,197 @@
             API_URL: 'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true',
             UPDATE_INTERVAL: 30000,
             PRICE_SCALE: {
-                hour: 10000,   // $10,000 per hour
-                minute: 1000   // $1,000 per full circle
+                hour: 10000,
+                minute: 1000
             },
-            MAX_PRICE: 120000  // Full circle price
+            MAX_SCALE: 120000
         };
 
         // State
-        let currentPrice = 34750;
-        let priceChange24h = 0;
-        let isDataLoaded = false;
-        let updateTimestamp = null;
+        let state = {
+            price: 34750,
+            change: 0,
+            isLive: false,
+            isLoading: true
+        };
 
         // DOM Elements
-        const hourHand = document.querySelector('.hour-hand');
-        const minuteHand = document.querySelector('.minute-hand');
-        const currentPriceEl = document.getElementById('currentPrice');
-        const priceChangeEl = document.getElementById('priceChange');
-        const loadingEl = document.querySelector('.loading');
-        const statusEl = document.getElementById('status');
-        const clockContainer = document.querySelector('.clock-container');
+        const elements = {
+            hourHand: document.querySelector('.hour-hand'),
+            minuteHand: document.querySelector('.minute-hand'),
+            currentPrice: document.getElementById('currentPrice'),
+            priceChange: document.getElementById('priceChange'),
+            hourRange: document.getElementById('hourRange'),
+            loading: document.querySelector('.loading'),
+            status: document.getElementById('status'),
+            clockContainer: document.querySelector('.clock-container')
+        };
 
         // Initialize
-        function init() {
-            createClockElements();
-            updateClock();
-            fetchBitcoinData();
-            
-            // Set up intervals
-            setInterval(updateClock, 50);
-            setInterval(fetchBitcoinData, CONFIG.UPDATE_INTERVAL);
+        async function init() {
+            createPerfectTicks();
+            await fetchPrice();
+            setInterval(fetchPrice, CONFIG.UPDATE_INTERVAL);
+            requestAnimationFrame(updateClock);
         }
 
-        // Create perfect clock elements
-        function createClockElements() {
-            // Create 12 hour ticks
-            for (let i = 0; i < 12; i++) {
-                const angle = i * 30; // 30 degrees per hour
-                
-                // Major ticks at 12, 3, 6, 9
-                if (i % 3 === 0) {
-                    const tick = document.createElement('div');
-                    tick.className = 'tick hour-tick';
-                    tick.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-                    clockContainer.appendChild(tick);
-                    
-                    // Add price label
-                    const label = document.createElement('div');
-                    label.className = 'price-label';
-                    
-                    // Set label text based on position
-                    let priceLabel = '';
-                    if (i === 0) priceLabel = '120k';
-                    else if (i === 3) priceLabel = '30k';
-                    else if (i === 6) priceLabel = '60k';
-                    else if (i === 9) priceLabel = '90k';
-                    
-                    label.textContent = `$${priceLabel}`;
-                    
-                    // Position label
-                    const radius = 43;
-                    const radians = angle * Math.PI / 180;
-                    const x = 50 + Math.sin(radians) * radius;
-                    const y = 50 - Math.cos(radians) * radius;
-                    
-                    label.style.left = `${x}%`;
-                    label.style.top = `${y}%`;
-                    
-                    clockContainer.appendChild(label);
-                }
-                
-                // Minor ticks for other hours
-                else {
-                    const tick = document.createElement('div');
-                    tick.className = 'tick minor-tick';
-                    tick.style.transform = `translateX(-50%) rotate(${angle}deg)`;
-                    clockContainer.appendChild(tick);
-                }
-            }
-            
-            // Create 60 minute ticks (fainter)
+        // Create perfect tick marks
+        function createPerfectTicks() {
+            // Create 60 tick marks (one for each minute)
             for (let i = 0; i < 60; i++) {
-                if (i % 5 === 0) continue; // Skip where hour ticks are
-                
                 const tick = document.createElement('div');
-                tick.className = 'tick minor-tick';
-                tick.style.opacity = '0.3';
-                tick.style.height = '8px';
-                tick.style.transform = `translateX(-50%) rotate(${i * 6}deg)`;
-                clockContainer.appendChild(tick);
+                const angle = i * 6; // 6 degrees per minute
+                
+                // Classify tick type
+                if (i % 15 === 0) { // 12, 3, 6, 9
+                    tick.className = 'tick-mark tick-hour';
+                } else if (i % 5 === 0) { // Every 5 minutes
+                    tick.className = 'tick-mark tick-five';
+                } else {
+                    tick.className = 'tick-mark tick-minute';
+                }
+                
+                // Position at edge of clock
+                tick.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+                tick.style.top = '0%';
+                
+                elements.clockContainer.appendChild(tick);
+            }
+
+            // Create price labels at 12, 3, 6, 9
+            const labels = [
+                { angle: 0, text: '120k', value: 120000 },
+                { angle: 90, text: '30k', value: 30000 },
+                { angle: 180, text: '60k', value: 60000 },
+                { angle: 270, text: '90k', value: 90000 }
+            ];
+
+            labels.forEach(label => {
+                const labelEl = document.createElement('div');
+                labelEl.className = 'price-label';
+                labelEl.textContent = label.text;
+                
+                // Position 40% from center (perfect positioning)
+                const radius = 40;
+                const rad = (label.angle - 90) * Math.PI / 180; // -90° because 0° is at 3 o'clock in CSS
+                const x = 50 + Math.cos(rad) * radius;
+                const y = 50 + Math.sin(rad) * radius;
+                
+                labelEl.style.left = `${x}%`;
+                labelEl.style.top = `${y}%`;
+                
+                elements.clockContainer.appendChild(labelEl);
+            });
+        }
+
+        // Fetch Bitcoin price
+        async function fetchPrice() {
+            try {
+                elements.status.textContent = 'Updating...';
+                
+                const response = await fetch(CONFIG.API_URL);
+                const data = await response.json();
+                
+                state.price = data.bitcoin.usd;
+                state.change = data.bitcoin.usd_24h_change;
+                state.isLive = true;
+                state.isLoading = false;
+                
+                elements.loading.style.display = 'none';
+                elements.status.textContent = 'Live';
+                elements.status.style.opacity = '0.5';
+                
+            } catch (error) {
+                console.error('API Error:', error);
+                
+                // Fallback to simulated data
+                state.price += (Math.random() - 0.5) * 1000;
+                state.change = (Math.random() - 0.5) * 5;
+                state.isLive = false;
+                state.isLoading = false;
+                
+                elements.loading.style.display = 'none';
+                elements.status.textContent = 'Simulated';
+                elements.status.style.opacity = '0.3';
             }
         }
 
         // Update clock hands
         function updateClock() {
-            if (!isDataLoaded) return;
+            if (state.isLoading) {
+                requestAnimationFrame(updateClock);
+                return;
+            }
+
+            // Normalize price (0-120k scale)
+            const normalizedPrice = state.price % CONFIG.MAX_SCALE;
             
-            // Calculate positions
-            const normalizedPrice = currentPrice % CONFIG.MAX_PRICE;
-            
-            // Hour hand: each hour = $10,000
+            // Calculate hour hand (0-12 hours, 0-360°)
             const hourValue = normalizedPrice / CONFIG.PRICE_SCALE.hour;
-            const hourAngle = hourValue * 30; // 30 degrees per hour
+            const hourAngle = hourValue * 30; // 30° per hour
             
-            // Minute hand: full circle = $1,000
+            // Calculate minute hand (0-1000 range, 0-360°)
             const remainder = normalizedPrice % CONFIG.PRICE_SCALE.hour;
             const minuteValue = remainder / CONFIG.PRICE_SCALE.minute;
-            const minuteAngle = minuteValue * 360;
+            const minuteAngle = (minuteValue * 360) % 360;
             
             // Apply rotations
-            hourHand.style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
-            minuteHand.style.transform = `translateX(-50%) rotate(${minuteAngle}deg)`;
+            elements.hourHand.style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
+            elements.minuteHand.style.transform = `translateX(-50%) rotate(${minuteAngle}deg)`;
             
             // Update minute hand color based on trend
-            if (priceChange24h >= 0) {
-                minuteHand.style.background = '#4CAF50';
-                minuteHand.style.boxShadow = '0 0 10px rgba(76, 175, 80, 0.7)';
-            } else {
-                minuteHand.style.background = '#F44336';
-                minuteHand.style.boxShadow = '0 0 10px rgba(244, 67, 54, 0.7)';
-            }
+            updateMinuteHandColor();
             
             // Update display
-            updateDisplay();
+            updateDisplay(hourValue, remainder);
+            
+            requestAnimationFrame(updateClock);
         }
 
-        // Update price display
-        function updateDisplay() {
-            // Format price with perfect alignment
-            const formattedPrice = currentPrice.toLocaleString('en-US', {
+        // Update minute hand color
+        function updateMinuteHandColor() {
+            if (state.change >= 0) {
+                elements.minuteHand.style.background = '#00ff9d';
+                elements.minuteHand.style.boxShadow = '0 0 10px rgba(0, 255, 157, 0.4)';
+            } else {
+                elements.minuteHand.style.background = '#ff4d4d';
+                elements.minuteHand.style.boxShadow = '0 0 10px rgba(255, 77, 77, 0.4)';
+            }
+        }
+
+        // Update display
+        function updateDisplay(hourValue, remainder) {
+            // Format price with commas
+            elements.currentPrice.textContent = state.price.toLocaleString('en-US', {
                 minimumIntegerDigits: 5,
                 useGrouping: true
             }).replace(/,/g, ',');
             
-            currentPriceEl.textContent = formattedPrice;
-            
-            // Update price change
-            if (priceChange24h > 0) {
-                priceChangeEl.textContent = `+${priceChange24h.toFixed(2)}%`;
-                priceChangeEl.className = 'price-change positive';
-            } else if (priceChange24h < 0) {
-                priceChangeEl.textContent = `${priceChange24h.toFixed(2)}%`;
-                priceChangeEl.className = 'price-change negative';
+            // Format change
+            const changeFormatted = Math.abs(state.change).toFixed(2);
+            if (state.change >= 0) {
+                elements.priceChange.textContent = `+${changeFormatted}%`;
+                elements.priceChange.className = 'detail-value positive';
             } else {
-                priceChangeEl.textContent = '0.00%';
-                priceChangeEl.className = 'price-change';
+                elements.priceChange.textContent = `-${changeFormatted}%`;
+                elements.priceChange.className = 'detail-value negative';
             }
             
-            // Update status
-            if (updateTimestamp) {
-                const secondsAgo = Math.floor((Date.now() - updateTimestamp) / 1000);
-                if (secondsAgo < 60) {
-                    statusEl.textContent = `● LIVE ${secondsAgo}s`;
-                } else {
-                    statusEl.textContent = `● LIVE ${Math.floor(secondsAgo/60)}m`;
-                }
+            // Calculate and display hour range
+            const currentHour = Math.floor(hourValue);
+            const rangeStart = currentHour * CONFIG.PRICE_SCALE.hour;
+            const rangeEnd = (currentHour + 1) * CONFIG.PRICE_SCALE.hour;
+            
+            // Handle wrap-around at 120k
+            let rangeText;
+            if (currentHour === 11) {
+                rangeText = `$${(rangeStart/1000).toFixed(0)}k-120k`;
+            } else {
+                rangeText = `$${(rangeStart/1000).toFixed(0)}k-${(rangeEnd/1000).toFixed(0)}k`;
             }
-        }
-
-        // Fetch Bitcoin data
-        async function fetchBitcoinData() {
-            try {
-                const response = await fetch(CONFIG.API_URL);
-                const data = await response.json();
-                
-                currentPrice = data.bitcoin.usd;
-                priceChange24h = data.bitcoin.usd_24h_change;
-                updateTimestamp = Date.now();
-                
-                // Hide loading on first successful fetch
-                if (!isDataLoaded) {
-                    isDataLoaded = true;
-                    loadingEl.style.opacity = '0';
-                    setTimeout(() => {
-                        loadingEl.style.display = 'none';
-                    }, 300);
-                }
-                
-            } catch (error) {
-                console.log('Using simulated data');
-                // Simulate price movement for demo
-                currentPrice += (Math.random() - 0.5) * 500;
-                priceChange24h = (Math.random() - 0.5) * 10;
-                updateTimestamp = Date.now();
-                
-                if (!isDataLoaded) {
-                    isDataLoaded = true;
-                    loadingEl.textContent = 'DEMO MODE';
-                    setTimeout(() => {
-                        loadingEl.style.opacity = '0';
-                        setTimeout(() => {
-                            loadingEl.style.display = 'none';
-                        }, 300);
-                    }, 1000);
-                }
-            }
+            
+            elements.hourRange.textContent = rangeText;
+            elements.hourRange.title = `$${rangeStart.toLocaleString()} - $${rangeEnd.toLocaleString()}`;
         }
 
         // Initialize on load
