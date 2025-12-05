@@ -102,7 +102,7 @@
             background: rgba(255, 255, 255, 0.4);
         }
 
-        /* Price labels - increased distance from ticks */
+        /* Price labels - significantly increased distance from ticks */
         .price-label {
             position: absolute;
             color: rgba(255, 255, 255, 0.7);
@@ -442,7 +442,7 @@
                 ];
             }
 
-            // Create new labels with INCREASED distance from ticks
+            // Create new labels with SIGNIFICANTLY INCREASED distance from ticks
             labels.forEach(label => {
                 const labelEl = document.createElement('div');
                 labelEl.className = 'price-label';
@@ -451,9 +451,9 @@
                 // Convert angle to radians
                 const angleRad = label.angle * (Math.PI / 180);
                 
-                // CORRETTO: Aumentato il raggio per allontanare i numeri dalle lineette
-                // Da radius - 28 a radius - 38 (10 pixel più lontano)
-                const labelRadius = radius - 38;
+                // AUMENTATO ULTERIORMENTE: Da radius - 38 a radius - 48
+                // Ora i numeri sono 20 pixel più lontani dai tick rispetto alla versione originale
+                const labelRadius = radius - 48;
                 
                 // Calculate position
                 const x = centerX + Math.cos(angleRad) * labelRadius;
