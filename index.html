@@ -784,7 +784,7 @@
             elements.closeDonationBottom.addEventListener('click', toggleDonationOverlay);
             elements.closeDonationBottom.addEventListener('touchstart', toggleDonationOverlay);
             
-            // Copy BTC address functionality
+            // Copy BTC address functionality - FIXED VERSION
             elements.btcAddressContainer.addEventListener('click', copyBTCAddress);
             elements.btcAddressContainer.addEventListener('touchstart', copyBTCAddress);
             
@@ -825,23 +825,51 @@
             }
         }
 
+        // FIXED COPY FUNCTION - More reliable
         function copyBTCAddress(e) {
             if (e) {
                 e.preventDefault();
                 e.stopPropagation();
             }
             
-            // Create a temporary textarea to copy from
-            const textarea = document.createElement('textarea');
-            textarea.value = CONFIG.BTC_ADDRESS;
-            textarea.style.position = 'fixed';
-            textarea.style.opacity = '0';
-            document.body.appendChild(textarea);
-            textarea.select();
+            // Select the text first
+            const addressText = elements.btcAddress.textContent;
             
-            try {
-                const successful = document.execCommand('copy');
-                if (successful) {
+            // Create a temporary textarea element
+            const textarea = document.createElement('textarea');
+            textarea.value = addressText;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-999999px';
+            textarea.style.top = '-999999px';
+            document.body.appendChild(textarea);
+            
+            // Select and copy
+            textarea.select();
+            textarea.setSelectionRange(0, addressText.length);
+            
+            // Try using the modern Clipboard API first
+            const copyToClipboard = async () => {
+                try {
+                    // Try using the modern Clipboard API
+                    if (navigator.clipboard && window.isSecureContext) {
+                        await navigator.clipboard.writeText(addressText);
+                        return true;
+                    } else {
+                        // Fallback to execCommand for older browsers
+                        const successful = document.execCommand('copy');
+                        return successful;
+                    }
+                } catch (err) {
+                    console.error('Copy failed:', err);
+                    return false;
+                } finally {
+                    // Clean up
+                    document.body.removeChild(textarea);
+                }
+            };
+            
+            copyToClipboard().then(success => {
+                if (success) {
                     // Visual feedback on the container
                     elements.btcAddressContainer.style.background = 'rgba(242, 169, 0, 0.15)';
                     elements.btcAddressContainer.style.borderColor = '#f2a900';
@@ -853,6 +881,11 @@
                     // Animation for address text
                     elements.btcAddress.style.animation = 'copyText 0.5s ease';
                     
+                    // Optional: Vibrate on mobile
+                    if (navigator.vibrate) {
+                        navigator.vibrate([100, 50, 100]);
+                    }
+                    
                     // Reset styles after 2 seconds
                     setTimeout(() => {
                         elements.copySuccess.classList.remove('show');
@@ -861,28 +894,20 @@
                         elements.btcAddressContainer.style.boxShadow = '';
                         elements.btcAddress.style.animation = '';
                     }, 2000);
+                } else {
+                    // Fallback error message
+                    const originalText = elements.copySuccess.textContent;
+                    elements.copySuccess.textContent = 'Copy failed!';
+                    elements.copySuccess.style.color = '#ff4d4d';
+                    elements.copySuccess.classList.add('show');
                     
-                    // Optional: Vibrate on mobile
-                    if (navigator.vibrate) {
-                        navigator.vibrate([100, 50, 100]);
-                    }
+                    setTimeout(() => {
+                        elements.copySuccess.classList.remove('show');
+                        elements.copySuccess.textContent = originalText;
+                        elements.copySuccess.style.color = '#f2a900';
+                    }, 2000);
                 }
-            } catch (err) {
-                console.error('Failed to copy text: ', err);
-                // Fallback error message
-                const originalText = elements.copySuccess.textContent;
-                elements.copySuccess.textContent = 'Copy failed!';
-                elements.copySuccess.style.color = '#ff4d4d';
-                elements.copySuccess.classList.add('show');
-                
-                setTimeout(() => {
-                    elements.copySuccess.classList.remove('show');
-                    elements.copySuccess.textContent = originalText;
-                    elements.copySuccess.style.color = '#f2a900';
-                }, 2000);
-            }
-            
-            document.body.removeChild(textarea);
+            });
         }
 
         // Touch/click handler for manual update
