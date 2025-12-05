@@ -784,9 +784,12 @@
             elements.closeDonationBottom.addEventListener('click', toggleDonationOverlay);
             elements.closeDonationBottom.addEventListener('touchstart', toggleDonationOverlay);
             
-            // Copy BTC address functionality - FIXED VERSION
+            // Copy BTC address functionality - SEMPLIFICATO E FUNZIONANTE
             elements.btcAddressContainer.addEventListener('click', copyBTCAddress);
-            elements.btcAddressContainer.addEventListener('touchstart', copyBTCAddress);
+            elements.btcAddressContainer.addEventListener('touchstart', function(e) {
+                e.preventDefault();
+                copyBTCAddress();
+            });
             
             // Close on escape key
             document.addEventListener('keydown', function(e) {
@@ -825,7 +828,7 @@
             }
         }
 
-        // FIXED COPY FUNCTION - Modern Clipboard API
+        // FUNZIONE DI COPIA SEMPLIFICATA E FUNZIONANTE
         async function copyBTCAddress(e) {
             if (e) {
                 e.preventDefault();
@@ -834,49 +837,41 @@
             
             const addressText = CONFIG.BTC_ADDRESS;
             
-            try {
-                // Use the modern Clipboard API
-                if (navigator.clipboard && window.isSecureContext) {
+            // Primo tentativo: usa navigator.clipboard se disponibile
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                try {
                     await navigator.clipboard.writeText(addressText);
                     showCopySuccess();
+                    return;
+                } catch (err) {
+                    console.log('Clipboard API failed, trying fallback...');
+                }
+            }
+            
+            // Secondo tentativo: metodo legacy
+            try {
+                // Crea un elemento input temporaneo
+                const tempInput = document.createElement('input');
+                tempInput.value = addressText;
+                tempInput.style.position = 'absolute';
+                tempInput.style.left = '-9999px';
+                document.body.appendChild(tempInput);
+                
+                // Seleziona e copia
+                tempInput.select();
+                tempInput.setSelectionRange(0, addressText.length);
+                
+                // Prova a copiare
+                const success = document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                
+                if (success) {
+                    showCopySuccess();
                 } else {
-                    // Fallback for older browsers or non-HTTPS
-                    copyWithFallback(addressText);
+                    showCopyError();
                 }
             } catch (err) {
-                console.error('Clipboard API failed:', err);
-                // Try fallback method
-                copyWithFallback(addressText);
-            }
-        }
-
-        // Fallback method for older browsers
-        function copyWithFallback(text) {
-            // Create temporary element
-            const textarea = document.createElement('textarea');
-            textarea.value = text;
-            textarea.style.position = 'fixed';
-            textarea.style.left = '-999999px';
-            textarea.style.top = '-999999px';
-            document.body.appendChild(textarea);
-            
-            // Select and copy
-            textarea.select();
-            textarea.setSelectionRange(0, text.length);
-            
-            let success = false;
-            try {
-                success = document.execCommand('copy');
-            } catch (err) {
                 console.error('Fallback copy failed:', err);
-            }
-            
-            // Clean up
-            document.body.removeChild(textarea);
-            
-            if (success) {
-                showCopySuccess();
-            } else {
                 showCopyError();
             }
         }
@@ -896,7 +891,7 @@
             
             // Optional: Vibrate on mobile
             if (navigator.vibrate) {
-                navigator.vibrate([100, 50, 100]);
+                navigator.vibrate([100]);
             }
             
             // Reset styles after 2 seconds
@@ -1046,8 +1041,8 @@
             elements.clockContainer = null;
             elements.hourHand = null;
             elements.minuteHand = null;
-            elements.btcLabel = null,
-            elements.clockFace = null,
+            elements.btcLabel = null;
+            elements.clockFace = null;
             elements.cooldownIndicator = null;
         }
 
