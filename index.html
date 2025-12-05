@@ -3,6 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BITCLOCK">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/BITCLOCK.png">
+    <link rel="apple-touch-icon" href="/BITCLOCK.png">
+    
     <title>BITCLOCK</title>
     <style>
         * {
@@ -722,6 +732,33 @@
     </div>
 
     <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                        
+                        // Check for updates periodically
+                        setInterval(() => {
+                            registration.update();
+                        }, 60 * 60 * 1000); // Check for updates every hour
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+            
+            // Listen for controller changes (updates)
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', function() {
+                if (!refreshing) {
+                    window.location.reload();
+                    refreshing = true;
+                }
+            });
+        }
+        
         // Prevent all interactions except clock touch
         document.addEventListener('touchmove', function(e) {
             e.preventDefault();
