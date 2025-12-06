@@ -370,6 +370,7 @@
             width: 100%;
             height: 100%;
             position: relative;
+            margin-top: -1cm;
         }
 
         .title {
@@ -518,6 +519,7 @@
             bottom: 50px;
             text-align: center;
             transition: all 0.3s ease;
+            margin-top: 1cm;
         }
 
         .current-price {
@@ -671,6 +673,14 @@
             .asset-selector-below {
                 display: none !important;
             }
+            
+            .container {
+                margin-top: 0;
+            }
+            
+            .price-display {
+                margin-top: 0;
+            }
         }
 
         /* Portrait mode adjustments */
@@ -692,6 +702,7 @@
             
             .price-display {
                 bottom: 40px;
+                margin-top: 0.8cm;
             }
             
             .asset-selector-below {
@@ -767,6 +778,10 @@
             .copy-hint {
                 margin-top: 3px;
             }
+            
+            .container {
+                margin-top: -0.8cm;
+            }
         }
 
         /* Small landscape devices */
@@ -781,6 +796,17 @@
         @media (orientation: landscape) {
             .donation-overlay {
                 display: none !important;
+            }
+        }
+
+        /* Adatta per schermi corti */
+        @media (max-height: 700px) {
+            .container {
+                margin-top: -0.8cm;
+            }
+            
+            .price-display {
+                margin-top: 0.8cm;
             }
         }
 
