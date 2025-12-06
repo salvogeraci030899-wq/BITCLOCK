@@ -57,53 +57,67 @@
             display: none;
         }
 
-        /* Asset Selector - now at the bottom */
-        .asset-selector {
+        /* Asset Selector Below Clock */
+        .asset-selector-below {
             position: absolute;
-            bottom: 30px;
+            bottom: -25px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
-            gap: 35px;
+            gap: 20px;
             z-index: 1001;
             transition: all 0.3s ease;
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
         }
 
-        .asset-name {
-            font-size: 1.2rem;
+        .asset-selector-below .asset-name {
+            font-size: 14px;
             font-weight: 300;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            opacity: 0.6;
+            opacity: 0.5;
             transition: all 0.3s ease;
             position: relative;
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
+            padding: 0 5px;
         }
 
-        .asset-name.active {
+        .asset-selector-below .asset-name.active {
             opacity: 1;
             font-weight: 400;
-            background: rgba(255, 255, 255, 0.1);
         }
 
-        .asset-name[data-asset="BTC"] {
+        .asset-selector-below .asset-name[data-asset="BTC"] {
             color: #F2A900;
         }
 
-        .asset-name[data-asset="ETH"] {
+        .asset-selector-below .asset-name[data-asset="ETH"] {
             color: #627EEA;
         }
 
-        .asset-name[data-asset="SOL"] {
+        .asset-selector-below .asset-name[data-asset="SOL"] {
             color: #00FFA3;
+        }
+
+        .asset-selector-below .asset-arrow {
+            font-size: 16px;
+            opacity: 0.2;
+            color: rgba(255, 255, 255, 0.5);
+            transition: opacity 0.3s ease;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .asset-selector-below .asset-arrow.left {
+            left: -30px;
+        }
+
+        .asset-selector-below .asset-arrow.right {
+            right: -30px;
+        }
+
+        .asset-selector-below .asset-arrow.show {
+            opacity: 0.6;
         }
 
         /* Donation Overlay */
@@ -455,20 +469,6 @@
             font-variant-numeric: tabular-nums;
         }
 
-        /* Asset label */
-        .asset-label {
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 14px;
-            font-weight: 300;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            transition: color 0.3s ease;
-        }
-
         /* Hands */
         .hands-container {
             position: absolute;
@@ -520,7 +520,7 @@
         /* Price display */
         .price-display {
             position: absolute;
-            bottom: 100px;
+            bottom: 50px;
             text-align: center;
             transition: all 0.3s ease;
         }
@@ -538,8 +538,8 @@
             transition: color 0.3s ease;
         }
 
-        .price-number {
-            color: #ffffff;
+        .price-value {
+            transition: color 0.3s ease;
         }
 
         .price-details {
@@ -688,30 +688,20 @@
                 letter-spacing: 12px;
             }
 
-            .asset-selector,
             .clock-wrapper,
             .price-display,
             .status,
-            .asset-label,
             .loading {
+                display: none !important;
+            }
+            
+            .asset-selector-below {
                 display: none !important;
             }
         }
 
         /* Portrait mode adjustments */
         @media (max-width: 600px) and (orientation: portrait) {
-            .asset-selector {
-                bottom: 20px;
-                gap: 25px;
-                padding: 8px 16px;
-            }
-            
-            .asset-name {
-                font-size: 1rem;
-                letter-spacing: 1.5px;
-                padding: 6px 12px;
-            }
-            
             .clock-wrapper {
                 width: 90vmin;
                 height: 90vmin;
@@ -728,12 +718,25 @@
             }
             
             .price-display {
-                bottom: 80px;
+                bottom: 40px;
             }
             
-            .asset-label {
+            .asset-selector-below {
                 bottom: -22px;
+                gap: 15px;
+            }
+            
+            .asset-selector-below .asset-name {
                 font-size: 12px;
+                letter-spacing: 0.8px;
+            }
+            
+            .asset-selector-below .asset-arrow.left {
+                left: -25px;
+            }
+            
+            .asset-selector-below .asset-arrow.right {
+                right: -25px;
             }
 
             .donation-title {
@@ -846,13 +849,6 @@
     <div class="container">
         <h1 class="title" id="pageTitle">BITCLOCK</h1>
         
-        <!-- Asset Selector - now at the bottom -->
-        <div class="asset-selector" id="assetSelector">
-            <div class="asset-name active" data-asset="BTC">BTC</div>
-            <div class="asset-name" data-asset="ETH">ETH</div>
-            <div class="asset-name" data-asset="SOL">SOL</div>
-        </div>
-        
         <div class="clock-wrapper" id="clockWrapper">
             <!-- Clock container will be dynamically created -->
         </div>
@@ -860,7 +856,7 @@
         <div class="price-display">
             <div class="current-price">
                 <span class="dollar-sign" id="dollarSign">$</span>
-                <span class="price-number" id="currentPrice">00.000</span>
+                <span class="price-value" id="currentPrice">00.000</span>
             </div>
             
             <div class="price-details">
@@ -983,12 +979,12 @@
         // DOM Elements
         const elements = {
             currentPrice: document.getElementById('currentPrice'),
+            dollarSign: document.getElementById('dollarSign'),
             priceChange: document.getElementById('priceChange'),
             hourRange: document.getElementById('hourRange'),
             status: document.getElementById('status'),
             title: document.querySelector('.title'),
             priceDisplay: document.querySelector('.price-display'),
-            assetLabel: null,
             clockWrapper: document.querySelector('.clock-wrapper'),
             overlay: document.querySelector('.rotation-overlay'),
             clockContainer: null,
@@ -996,10 +992,9 @@
             minuteHand: null,
             clockFace: null,
             cooldownIndicator: null,
-            // Asset elements
-            assetSelector: document.getElementById('assetSelector'),
-            assetNames: document.querySelectorAll('.asset-name'),
-            dollarSign: document.getElementById('dollarSign'),
+            assetSelectorBelow: null,
+            assetNames: null,
+            assetArrows: null,
             // Donation elements
             donationOverlay: document.getElementById('donationOverlay'),
             closeDonationTop: document.getElementById('closeDonationTop'),
@@ -1050,7 +1045,7 @@
                 if (e.target.closest('.clock-wrapper') || 
                     e.target.closest('.price-display') || 
                     e.target.closest('.status') ||
-                    e.target.closest('.asset-selector')) {
+                    e.target.closest('.asset-selector-below')) {
                     return;
                 }
                 
@@ -1292,27 +1287,80 @@
             }, 2000);
         }
 
-        // Setup asset selector click handlers
-        function setupAssetSelector() {
-            elements.assetNames.forEach(name => {
-                name.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    if (this.dataset.asset !== state.currentAsset) {
-                        switchAsset(this.dataset.asset);
-                    }
-                });
-                
-                name.addEventListener('touchstart', function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    
-                    if (this.dataset.asset !== state.currentAsset) {
-                        switchAsset(this.dataset.asset);
-                    }
-                });
-            });
+        // Setup swipe handlers
+        function setupSwipeHandlers() {
+            if (!elements.clockWrapper || state.isLandscape) return;
+            
+            // Touch events for mobile
+            elements.clockWrapper.addEventListener('touchstart', handleTouchStart);
+            elements.clockWrapper.addEventListener('touchend', handleTouchEnd);
+            
+            // Mouse events for desktop
+            elements.clockWrapper.addEventListener('mousedown', handleMouseDown);
+            elements.clockWrapper.addEventListener('mouseup', handleMouseUp);
+            
+            // Keyboard arrows for desktop
+            document.addEventListener('keydown', handleKeyDown);
+        }
+
+        function handleTouchStart(e) {
+            state.touchStartX = e.changedTouches[0].screenX;
+        }
+
+        function handleTouchEnd(e) {
+            state.touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }
+
+        function handleMouseDown(e) {
+            state.touchStartX = e.screenX;
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        function handleMouseUp(e) {
+            state.touchEndX = e.screenX;
+            handleSwipe();
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+
+        function handleSwipe() {
+            const diff = state.touchStartX - state.touchEndX;
+            
+            if (Math.abs(diff) > state.swipeThreshold) {
+                if (diff > 0) {
+                    // Swipe left - next asset
+                    switchToNextAsset();
+                } else {
+                    // Swipe right - previous asset
+                    switchToPreviousAsset();
+                }
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (state.isLandscape) return;
+            
+            if (e.key === 'ArrowLeft') {
+                switchToPreviousAsset();
+            } else if (e.key === 'ArrowRight') {
+                switchToNextAsset();
+            }
+        }
+
+        function switchToNextAsset() {
+            const assets = ['BTC', 'ETH', 'SOL'];
+            const currentIndex = assets.indexOf(state.currentAsset);
+            const nextIndex = (currentIndex + 1) % assets.length;
+            
+            switchAsset(assets[nextIndex]);
+        }
+
+        function switchToPreviousAsset() {
+            const assets = ['BTC', 'ETH', 'SOL'];
+            const currentIndex = assets.indexOf(state.currentAsset);
+            const prevIndex = (currentIndex - 1 + assets.length) % assets.length;
+            
+            switchAsset(assets[prevIndex]);
         }
 
         function switchAsset(newAsset) {
@@ -1320,13 +1368,18 @@
             
             state.currentAsset = newAsset;
             
-            // Update asset selector
-            elements.assetNames.forEach(name => {
-                name.classList.remove('active');
-                if (name.dataset.asset === newAsset) {
-                    name.classList.add('active');
-                }
-            });
+            // Update asset selector below
+            if (elements.assetNames) {
+                elements.assetNames.forEach(name => {
+                    name.classList.remove('active');
+                    if (name.dataset.asset === newAsset) {
+                        name.classList.add('active');
+                    }
+                });
+            }
+            
+            // Update arrows visibility
+            updateArrowsVisibility();
             
             // Apply transition effect
             if (elements.clockContainer) {
@@ -1336,8 +1389,8 @@
                 }, 500);
             }
             
-            // Update dollar sign color
-            updateDollarSignColor();
+            // Update price display color (including dollar sign)
+            updatePriceDisplayColor();
             
             // Update clock scale
             updateScale();
@@ -1353,16 +1406,27 @@
             // Update minute hand color based on change
             updateMinuteHandColor();
             
-            // Update asset label
-            updateAssetLabel();
-            
             // Update display
             updateDisplay();
         }
 
-        function updateDollarSignColor() {
+        function updateArrowsVisibility() {
+            if (!elements.assetArrows) return;
+            
+            const assets = ['BTC', 'ETH', 'SOL'];
+            const currentIndex = assets.indexOf(state.currentAsset);
+            
+            // Show left arrow if not on first asset
+            elements.assetArrows[0].classList.toggle('show', currentIndex > 0);
+            // Show right arrow if not on last asset
+            elements.assetArrows[1].classList.toggle('show', currentIndex < assets.length - 1);
+        }
+
+        function updatePriceDisplayColor() {
             const asset = ASSETS[state.currentAsset];
+            // Color both dollar sign and price value
             elements.dollarSign.style.color = asset.color;
+            elements.currentPrice.style.color = asset.color;
         }
 
         // Touch/click handler for manual update
@@ -1449,6 +1513,7 @@
                     createClock();
                     
                     setupTouchHandler();
+                    setupSwipeHandlers();
                     
                     if (!state.isLandscape) {
                         requestAnimationFrame(updateClock);
@@ -1466,9 +1531,11 @@
             elements.clockContainer = null;
             elements.hourHand = null;
             elements.minuteHand = null;
-            elements.assetLabel = null;
             elements.clockFace = null;
             elements.cooldownIndicator = null;
+            elements.assetSelectorBelow = null;
+            elements.assetNames = null;
+            elements.assetArrows = null;
         }
 
         // Create complete clock from scratch
@@ -1489,11 +1556,24 @@
             
             createPerfectTicks();
             
-            elements.assetLabel = document.createElement('div');
-            elements.assetLabel.className = 'asset-label';
-            elements.assetLabel.textContent = ASSETS[state.currentAsset].symbol;
-            elements.assetLabel.style.color = ASSETS[state.currentAsset].color;
-            elements.clockContainer.appendChild(elements.assetLabel);
+            // Create asset selector below clock
+            elements.assetSelectorBelow = document.createElement('div');
+            elements.assetSelectorBelow.className = 'asset-selector-below';
+            elements.assetSelectorBelow.innerHTML = `
+                <div class="asset-arrow left">←</div>
+                <div class="asset-name active" data-asset="BTC">BTC</div>
+                <div class="asset-name" data-asset="ETH">ETH</div>
+                <div class="asset-name" data-asset="SOL">SOL</div>
+                <div class="asset-arrow right">→</div>
+            `;
+            elements.clockContainer.appendChild(elements.assetSelectorBelow);
+            
+            // Update asset selector references
+            elements.assetNames = elements.assetSelectorBelow.querySelectorAll('.asset-name');
+            elements.assetArrows = elements.assetSelectorBelow.querySelectorAll('.asset-arrow');
+            
+            // Update arrows visibility
+            updateArrowsVisibility();
             
             const handsContainer = document.createElement('div');
             handsContainer.className = 'hands-container';
@@ -1538,7 +1618,6 @@
                 elements.clockWrapper.style.display = 'none';
                 elements.priceDisplay.style.display = 'none';
                 elements.status.style.display = 'none';
-                elements.assetSelector.style.display = 'none';
             } else {
                 elements.title.style.position = 'absolute';
                 elements.title.style.top = '40px';
@@ -1551,7 +1630,6 @@
                 elements.clockWrapper.style.display = 'block';
                 elements.priceDisplay.style.display = 'block';
                 elements.status.style.display = 'block';
-                elements.assetSelector.style.display = 'flex';
             }
         }
 
@@ -1693,22 +1771,10 @@
             }
         }
 
-        // Update asset label
-        function updateAssetLabel() {
-            if (!elements.assetLabel) return;
-            
-            const asset = ASSETS[state.currentAsset];
-            elements.assetLabel.textContent = asset.symbol;
-            elements.assetLabel.style.color = asset.color;
-        }
-
         // Initialize
         async function init() {
             // Setup donation page
             setupDonationPage();
-            
-            // Setup asset selector
-            setupAssetSelector();
             
             // Initial setup
             updateOrientationDisplay();
@@ -1716,6 +1782,10 @@
             
             // Setup touch handlers
             setupTouchHandler();
+            setupSwipeHandlers();
+            
+            // Update price display color initially
+            updatePriceDisplayColor();
             
             // Listen for orientation changes
             window.addEventListener('resize', handleOrientationChange);
@@ -1736,9 +1806,6 @@
 
             // Initial data fetch
             await fetchAllPrices();
-            
-            // Update dollar sign color
-            updateDollarSignColor();
             
             // Update every 15 seconds
             setInterval(() => {
