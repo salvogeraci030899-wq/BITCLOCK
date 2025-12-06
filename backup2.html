@@ -57,49 +57,49 @@
             display: none;
         }
 
-        /* Asset Indicator */
-        .asset-indicator {
+        /* Asset Selector Below Clock */
+        .asset-selector-below {
             position: absolute;
-            top: 100px;
+            bottom: -25px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
-            gap: 25px;
+            gap: 20px;
             z-index: 1001;
             transition: all 0.3s ease;
         }
 
-        .asset-name {
-            font-size: 1.4rem;
+        .asset-selector-below .asset-name {
+            font-size: 14px;
             font-weight: 300;
-            letter-spacing: 3px;
+            letter-spacing: 1px;
             text-transform: uppercase;
-            opacity: 0.9;
+            opacity: 0.5;
             transition: all 0.3s ease;
             position: relative;
-            padding: 0 10px;
+            padding: 0 5px;
         }
 
-        .asset-name.active {
+        .asset-selector-below .asset-name.active {
             opacity: 1;
             font-weight: 400;
         }
 
-        .asset-name[data-asset="BTC"] {
+        .asset-selector-below .asset-name[data-asset="BTC"] {
             color: #F2A900;
         }
 
-        .asset-name[data-asset="ETH"] {
+        .asset-selector-below .asset-name[data-asset="ETH"] {
             color: #627EEA;
         }
 
-        .asset-name[data-asset="SOL"] {
-            color: #00FFA3;
+        .asset-selector-below .asset-name[data-asset="SOL"] {
+            color: #9945FF;
         }
 
-        .asset-arrow {
-            font-size: 1.8rem;
+        .asset-selector-below .asset-arrow {
+            font-size: 16px;
             opacity: 0.2;
             color: rgba(255, 255, 255, 0.5);
             transition: opacity 0.3s ease;
@@ -108,15 +108,15 @@
             transform: translateY(-50%);
         }
 
-        .asset-arrow.left {
-            left: -40px;
+        .asset-selector-below .asset-arrow.left {
+            left: -30px;
         }
 
-        .asset-arrow.right {
-            right: -40px;
+        .asset-selector-below .asset-arrow.right {
+            right: -30px;
         }
 
-        .asset-arrow.show {
+        .asset-selector-below .asset-arrow.show {
             opacity: 0.6;
         }
 
@@ -143,7 +143,7 @@
             max-width: 500px;
             width: 90%;
             margin: auto;
-            padding: 20px;
+            padding: 15px;
             animation: fadeInUp 0.5s ease;
             display: flex;
             flex-direction: column;
@@ -154,10 +154,10 @@
         }
 
         .donation-title {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 300;
             letter-spacing: 4px;
-            margin-bottom: 40px;
+            margin-bottom: 25px;
             color: rgba(255, 255, 255, 0.9);
             text-transform: uppercase;
             text-align: center;
@@ -165,7 +165,7 @@
         }
 
         .donation-section {
-            margin-bottom: 40px;
+            margin-bottom: 20px;
             width: 100%;
             display: flex;
             flex-direction: column;
@@ -173,55 +173,66 @@
         }
 
         .donation-subtitle {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 400;
             letter-spacing: 1px;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             color: rgba(255, 255, 255, 0.8);
             text-transform: uppercase;
             text-align: center;
             width: 100%;
         }
 
-        .btc-address-container {
+        .address-container {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 15px;
+            padding: 12px;
+            margin-bottom: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             position: relative;
-            overflow: visible;
+            overflow: hidden;
             width: 90%;
             max-width: 400px;
             margin-left: auto;
             margin-right: auto;
         }
 
-        .btc-address-container:hover {
+        .address-container:hover {
             background: rgba(255, 255, 255, 0.08);
             border-color: rgba(255, 255, 255, 0.2);
         }
 
-        .btc-address-container:active {
+        .address-container:active {
             transform: scale(0.98);
         }
 
-        .btc-address {
+        .crypto-address {
             font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
-            font-size: 0.95rem;
-            letter-spacing: 1px;
-            color: #f2a900;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
             word-break: break-all;
             line-height: 1.4;
             text-align: center;
         }
 
+        .btc-address {
+            color: #F2A900;
+        }
+
+        .eth-address {
+            color: #627EEA;
+        }
+
+        .sol-address {
+            color: #9945FF;
+        }
+
         .copy-hint {
             font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.5);
-            margin-top: 8px;
+            margin-top: 6px;
             letter-spacing: 0.5px;
             text-transform: uppercase;
             text-align: center;
@@ -230,8 +241,7 @@
 
         .copy-success-message {
             font-size: 0.85rem;
-            color: #f2a900;
-            margin-top: 10px;
+            margin-top: 8px;
             letter-spacing: 0.5px;
             text-transform: uppercase;
             text-align: center;
@@ -245,6 +255,18 @@
         .copy-success-message.show {
             opacity: 1;
             animation: textPulse 0.5s ease;
+        }
+
+        .btc-success {
+            color: #F2A900;
+        }
+
+        .eth-success {
+            color: #627EEA;
+        }
+
+        .sol-success {
+            color: #9945FF;
         }
 
         @keyframes textPulse {
@@ -265,7 +287,7 @@
             letter-spacing: 1px;
             text-transform: uppercase;
             transition: all 0.3s ease;
-            margin-top: 10px;
+            margin-top: 8px;
             cursor: pointer;
             text-align: center;
             min-width: 200px;
@@ -281,9 +303,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
             width: 100%;
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         /* Rimosso la X di chiusura in alto a destra */
@@ -292,7 +314,7 @@
         }
 
         .donation-footer {
-            margin-top: 40px;
+            margin-top: 25px;
             text-align: center;
             font-size: 0.75rem;
             color: rgba(255, 255, 255, 0.3);
@@ -306,7 +328,7 @@
         }
 
         .creator-credit {
-            margin-top: 8px;
+            margin-top: 6px;
             font-size: 0.7rem;
             color: rgba(255, 255, 255, 0.25);
             letter-spacing: 0.8px;
@@ -337,33 +359,6 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
-            }
-        }
-
-        @keyframes copyPulse {
-            0% {
-                background: rgba(242, 169, 0, 0);
-            }
-            20% {
-                background: rgba(242, 169, 0, 0.25);
-            }
-            100% {
-                background: rgba(242, 169, 0, 0.15);
-            }
-        }
-
-        @keyframes copyText {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-            50% {
-                transform: scale(1.05);
-                opacity: 0.9;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
             }
         }
 
@@ -469,20 +464,6 @@
             font-variant-numeric: tabular-nums;
         }
 
-        /* Asset label */
-        .asset-label {
-            position: absolute;
-            bottom: -25px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 14px;
-            font-weight: 300;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            transition: color 0.3s ease;
-        }
-
         /* Hands */
         .hands-container {
             position: absolute;
@@ -543,9 +524,17 @@
             font-size: 2.6rem;
             font-weight: 300;
             letter-spacing: 1px;
-            color: #ffffff;
             font-variant-numeric: tabular-nums;
             font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            transition: color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .dollar-sign {
+            transition: color 0.3s ease;
+        }
+
+        .price-value {
             transition: color 0.3s ease;
         }
 
@@ -629,28 +618,6 @@
             }
         }
 
-        /* Status indicator */
-        .status {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            font-size: 0.65rem;
-            color: rgba(255, 255, 255, 0.25);
-            letter-spacing: 1px;
-            font-weight: 300;
-        }
-
-        .status.offline {
-            color: #ff4d4d;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 0.1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 0.1; }
-        }
-
         /* Touch cooldown indicator */
         .cooldown-indicator {
             position: absolute;
@@ -695,36 +662,19 @@
                 letter-spacing: 12px;
             }
 
-            .asset-indicator,
             .clock-wrapper,
             .price-display,
-            .status,
-            .asset-label,
             .loading {
+                display: none !important;
+            }
+            
+            .asset-selector-below {
                 display: none !important;
             }
         }
 
         /* Portrait mode adjustments */
         @media (max-width: 600px) and (orientation: portrait) {
-            .asset-indicator {
-                top: 80px;
-                gap: 20px;
-            }
-            
-            .asset-name {
-                font-size: 1.2rem;
-                letter-spacing: 2px;
-            }
-            
-            .asset-arrow.left {
-                left: -35px;
-            }
-            
-            .asset-arrow.right {
-                right: -35px;
-            }
-            
             .clock-wrapper {
                 width: 90vmin;
                 height: 90vmin;
@@ -744,38 +694,53 @@
                 bottom: 40px;
             }
             
-            .asset-label {
+            .asset-selector-below {
                 bottom: -22px;
+                gap: 15px;
+            }
+            
+            .asset-selector-below .asset-name {
                 font-size: 12px;
+                letter-spacing: 0.8px;
+            }
+            
+            .asset-selector-below .asset-arrow.left {
+                left: -25px;
+            }
+            
+            .asset-selector-below .asset-arrow.right {
+                right: -25px;
             }
 
             .donation-title {
                 font-size: 1.5rem;
                 letter-spacing: 3px;
-                margin-bottom: 30px;
+                margin-bottom: 20px;
             }
 
             .donation-subtitle {
-                font-size: 1rem;
+                font-size: 0.95rem;
             }
 
-            .btc-address {
-                font-size: 0.85rem;
+            .crypto-address {
+                font-size: 0.8rem;
             }
 
-            .btc-address-container {
+            .address-container {
                 width: 85%;
-                padding: 15px;
+                padding: 10px;
+                margin-bottom: 6px;
             }
 
             .donation-content {
-                padding: 15px;
+                padding: 12px;
             }
 
             .donation-button {
                 padding: 10px 20px;
                 font-size: 0.85rem;
                 min-width: 180px;
+                margin-top: 6px;
             }
             
             .copy-success-message {
@@ -784,6 +749,15 @@
             
             .creator-credit {
                 font-size: 0.65rem;
+            }
+            
+            .donation-footer {
+                margin-top: 20px;
+            }
+            
+            .button-group {
+                gap: 10px;
+                margin-top: 12px;
             }
         }
 
@@ -820,14 +794,40 @@
             
             <div class="donation-section">
                 <h3 class="donation-subtitle">Bitcoin Donation</h3>
-                <div class="btc-address-container" id="btcAddressContainer">
-                    <div class="btc-address" id="btcAddress">
-                        bc1p8qttqw943pwcj7jag4remvx63qyycujuem93z72el2s9agp4v7xsehgsg0
+                <div class="address-container" id="btcAddressContainer">
+                    <div class="crypto-address btc-address" id="btcAddress">
+                        bc1p8q...hgsg0
                     </div>
                     <div class="copy-hint">Tap to copy address</div>
                 </div>
-                <div class="copy-success-message" id="copySuccessMessage">
-                    Address Copied!
+                <div class="copy-success-message btc-success" id="copySuccessMessageBTC">
+                    BTC Address Copied!
+                </div>
+            </div>
+            
+            <div class="donation-section">
+                <h3 class="donation-subtitle">Ethereum Donation</h3>
+                <div class="address-container" id="ethAddressContainer">
+                    <div class="crypto-address eth-address" id="ethAddress">
+                        0xDA9B...2354
+                    </div>
+                    <div class="copy-hint">Tap to copy address</div>
+                </div>
+                <div class="copy-success-message eth-success" id="copySuccessMessageETH">
+                    ETH Address Copied!
+                </div>
+            </div>
+            
+            <div class="donation-section">
+                <h3 class="donation-subtitle">Solana Donation</h3>
+                <div class="address-container" id="solAddressContainer">
+                    <div class="crypto-address sol-address" id="solAddress">
+                        Cn161...keCBt
+                    </div>
+                    <div class="copy-hint">Tap to copy address</div>
+                </div>
+                <div class="copy-success-message sol-success" id="copySuccessMessageSOL">
+                    SOL Address Copied!
                 </div>
             </div>
             
@@ -859,21 +859,14 @@
     <div class="container">
         <h1 class="title" id="pageTitle">BITCLOCK</h1>
         
-        <!-- Asset Indicator -->
-        <div class="asset-indicator" id="assetIndicator">
-            <div class="asset-arrow left">←</div>
-            <div class="asset-name active" data-asset="BTC">BTC</div>
-            <div class="asset-name" data-asset="ETH">ETH</div>
-            <div class="asset-name" data-asset="SOL">SOL</div>
-            <div class="asset-arrow right">→</div>
-        </div>
-        
         <div class="clock-wrapper" id="clockWrapper">
             <!-- Clock container will be dynamically created -->
         </div>
         
         <div class="price-display">
-            <div class="current-price">$<span id="currentPrice">00.000</span></div>
+            <div class="current-price">
+                <span class="dollar-sign" id="dollarSign">$</span><span class="price-value" id="currentPrice">00.000</span>
+            </div>
             
             <div class="price-details">
                 <div class="detail">
@@ -886,8 +879,6 @@
                 </div>
             </div>
         </div>
-        
-        <div class="status" id="status">Live</div>
     </div>
 
     <script>
@@ -940,6 +931,8 @@
             UPDATE_INTERVAL: 15000, // 15 secondi
             MANUAL_UPDATE_COOLDOWN: 10000, // 10 seconds cooldown for manual updates
             BTC_ADDRESS: 'bc1p8qttqw943pwcj7jag4remvx63qyycujuem93z72el2s9agp4v7xsehgsg0',
+            ETH_ADDRESS: '0xDA9B714Bf2fd11b22d881FD5cDB3034F343e2354',
+            SOL_ADDRESS: 'Cn161xoUetuTaoe86QAadpdQ8dvCi8QbRKqLBKWkeCBt',
             BINANCE_REFERRAL: 'https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00CQ6FMX2C',
             BITGET_REFERRAL: 'https://share.bitget.com/u/BVDFSB1D'
         };
@@ -967,7 +960,7 @@
                 name: 'Solana',
                 scale: 300,
                 baseScale: 300,
-                color: '#00FFA3',
+                color: '#9945FF',
                 symbol: 'SOL'
             }
         };
@@ -995,12 +988,11 @@
         // DOM Elements
         const elements = {
             currentPrice: document.getElementById('currentPrice'),
+            dollarSign: document.getElementById('dollarSign'),
             priceChange: document.getElementById('priceChange'),
             hourRange: document.getElementById('hourRange'),
-            status: document.getElementById('status'),
             title: document.querySelector('.title'),
             priceDisplay: document.querySelector('.price-display'),
-            assetLabel: null,
             clockWrapper: document.querySelector('.clock-wrapper'),
             overlay: document.querySelector('.rotation-overlay'),
             clockContainer: null,
@@ -1008,25 +1000,32 @@
             minuteHand: null,
             clockFace: null,
             cooldownIndicator: null,
-            // Asset elements
-            assetIndicator: document.getElementById('assetIndicator'),
-            assetNames: document.querySelectorAll('.asset-name'),
-            assetArrows: document.querySelectorAll('.asset-arrow'),
+            assetSelectorBelow: null,
+            assetNames: null,
+            assetArrows: null,
             // Donation elements
             donationOverlay: document.getElementById('donationOverlay'),
             closeDonationTop: document.getElementById('closeDonationTop'),
             closeDonationBottom: document.getElementById('closeDonationBottom'),
             btcAddressContainer: document.getElementById('btcAddressContainer'),
             btcAddress: document.getElementById('btcAddress'),
-            copySuccessMessage: document.getElementById('copySuccessMessage'),
+            ethAddressContainer: document.getElementById('ethAddressContainer'),
+            ethAddress: document.getElementById('ethAddress'),
+            solAddressContainer: document.getElementById('solAddressContainer'),
+            solAddress: document.getElementById('solAddress'),
+            copySuccessMessageBTC: document.getElementById('copySuccessMessageBTC'),
+            copySuccessMessageETH: document.getElementById('copySuccessMessageETH'),
+            copySuccessMessageSOL: document.getElementById('copySuccessMessageSOL'),
             pageTitle: document.getElementById('pageTitle'),
             creatorCredit: document.querySelector('.creator-credit')
         };
 
         // Setup donation page
         function setupDonationPage() {
-            // Set BTC address
-            elements.btcAddress.textContent = CONFIG.BTC_ADDRESS;
+            // Set abbreviated addresses for display
+            elements.btcAddress.textContent = abbreviateAddress(CONFIG.BTC_ADDRESS, 6, 5);
+            elements.ethAddress.textContent = abbreviateAddress(CONFIG.ETH_ADDRESS, 6, 4);
+            elements.solAddress.textContent = abbreviateAddress(CONFIG.SOL_ADDRESS, 5, 4);
             
             // Title click to open donation (only in portrait)
             elements.pageTitle.addEventListener('click', function(e) {
@@ -1061,8 +1060,7 @@
                 // Don't open if clicking on clock or its children
                 if (e.target.closest('.clock-wrapper') || 
                     e.target.closest('.price-display') || 
-                    e.target.closest('.status') ||
-                    e.target.closest('.asset-indicator')) {
+                    e.target.closest('.asset-selector-below')) {
                     return;
                 }
                 
@@ -1079,47 +1077,60 @@
             elements.closeDonationBottom.addEventListener('click', toggleDonationOverlay);
             elements.closeDonationBottom.addEventListener('touchstart', toggleDonationOverlay);
             
-            // Copy BTC address functionality
-            let copyInProgress = false;
-            let lastCopyTime = 0;
-            
-            elements.btcAddressContainer.addEventListener('click', async function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const now = Date.now();
-                if (now - lastCopyTime < 500) return;
-                lastCopyTime = now;
-                
-                if (copyInProgress) return;
-                copyInProgress = true;
-                
-                await copyBTCAddress();
-                
-                copyInProgress = false;
-            });
-            
-            elements.btcAddressContainer.addEventListener('touchstart', async function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                const now = Date.now();
-                if (now - lastCopyTime < 500) return;
-                lastCopyTime = now;
-                
-                if (copyInProgress) return;
-                copyInProgress = true;
-                
-                await copyBTCAddress();
-                
-                copyInProgress = false;
-            });
+            // Copy address functionality for all three cryptocurrencies
+            setupAddressCopy('btc', CONFIG.BTC_ADDRESS, elements.btcAddressContainer, elements.copySuccessMessageBTC, '#F2A900');
+            setupAddressCopy('eth', CONFIG.ETH_ADDRESS, elements.ethAddressContainer, elements.copySuccessMessageETH, '#627EEA');
+            setupAddressCopy('sol', CONFIG.SOL_ADDRESS, elements.solAddressContainer, elements.copySuccessMessageSOL, '#9945FF');
             
             // Close on escape key
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && state.donationOverlayVisible) {
                     toggleDonationOverlay();
                 }
+            });
+        }
+
+        // Helper function to abbreviate addresses
+        function abbreviateAddress(address, startChars = 6, endChars = 4) {
+            if (address.length <= startChars + endChars) return address;
+            return address.substring(0, startChars) + '...' + address.substring(address.length - endChars);
+        }
+
+        // Setup copy functionality for an address
+        function setupAddressCopy(type, fullAddress, containerElement, successMessageElement, color) {
+            let copyInProgress = false;
+            let lastCopyTime = 0;
+            
+            containerElement.addEventListener('click', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const now = Date.now();
+                if (now - lastCopyTime < 500) return;
+                lastCopyTime = now;
+                
+                if (copyInProgress) return;
+                copyInProgress = true;
+                
+                await copyAddress(fullAddress, successMessageElement, containerElement, color);
+                
+                copyInProgress = false;
+            });
+            
+            containerElement.addEventListener('touchstart', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const now = Date.now();
+                if (now - lastCopyTime < 500) return;
+                lastCopyTime = now;
+                
+                if (copyInProgress) return;
+                copyInProgress = true;
+                
+                await copyAddress(fullAddress, successMessageElement, containerElement, color);
+                
+                copyInProgress = false;
             });
         }
 
@@ -1143,23 +1154,25 @@
             
             if (state.donationOverlayVisible) {
                 elements.donationOverlay.classList.add('active');
-                // Reset copy message when opening donation overlay
-                elements.copySuccessMessage.classList.remove('show');
+                // Reset all copy messages when opening donation overlay
+                document.querySelectorAll('.copy-success-message').forEach(msg => {
+                    msg.classList.remove('show');
+                });
             } else {
                 elements.donationOverlay.classList.remove('active');
             }
         }
 
-        // Copy BTC address
-        async function copyBTCAddress() {
-            elements.copySuccessMessage.classList.remove('show');
-            void elements.copySuccessMessage.offsetWidth;
+        // Copy address
+        async function copyAddress(address, successMessageElement, containerElement, color) {
+            successMessageElement.classList.remove('show');
+            void successMessageElement.offsetWidth;
             
             // Modern Clipboard API
             if (navigator.clipboard && window.isSecureContext) {
                 try {
-                    await navigator.clipboard.writeText(CONFIG.BTC_ADDRESS);
-                    showCopySuccess();
+                    await navigator.clipboard.writeText(address);
+                    showCopySuccess(successMessageElement, containerElement, color);
                     return true;
                 } catch (err) {
                     console.log('Modern Clipboard API failed, trying fallback...');
@@ -1169,7 +1182,7 @@
             // Legacy method with textarea
             try {
                 const textArea = document.createElement('textarea');
-                textArea.value = CONFIG.BTC_ADDRESS;
+                textArea.value = address;
                 
                 textArea.style.position = 'fixed';
                 textArea.style.left = '-999999px';
@@ -1181,30 +1194,30 @@
                 
                 textArea.focus();
                 textArea.select();
-                textArea.setSelectionRange(0, CONFIG.BTC_ADDRESS.length);
+                textArea.setSelectionRange(0, address.length);
                 
                 const successful = document.execCommand('copy');
                 
                 document.body.removeChild(textArea);
                 
                 if (successful) {
-                    showCopySuccess();
+                    showCopySuccess(successMessageElement, containerElement, color);
                     return true;
                 } else {
-                    return fallbackCopyMethod();
+                    return fallbackCopyMethod(address, successMessageElement, containerElement, color);
                 }
                 
             } catch (err) {
                 console.error('Legacy copy method failed:', err);
-                return fallbackCopyMethod();
+                return fallbackCopyMethod(address, successMessageElement, containerElement, color);
             }
         }
 
-        function fallbackCopyMethod() {
+        function fallbackCopyMethod(address, successMessageElement, containerElement, color) {
             try {
                 const input = document.createElement('input');
                 input.type = 'text';
-                input.value = CONFIG.BTC_ADDRESS;
+                input.value = address;
                 input.style.position = 'absolute';
                 input.style.left = '-1000px';
                 input.style.top = '-1000px';
@@ -1215,7 +1228,7 @@
                 
                 input.focus();
                 input.select();
-                input.setSelectionRange(0, CONFIG.BTC_ADDRESS.length);
+                input.setSelectionRange(0, address.length);
                 
                 if (navigator.userAgent.match(/iphone|ipad|ipod/i)) {
                     const range = document.createRange();
@@ -1231,19 +1244,19 @@
                 document.body.removeChild(input);
                 
                 if (successful) {
-                    showCopySuccess();
+                    showCopySuccess(successMessageElement, containerElement, color);
                     return true;
                 } else {
-                    return finalCopyAttempt();
+                    return finalCopyAttempt(address, successMessageElement, containerElement, color);
                 }
                 
             } catch (err) {
                 console.error('Fallback copy method failed:', err);
-                return finalCopyAttempt();
+                return finalCopyAttempt(address, successMessageElement, containerElement, color);
             }
         }
 
-        function finalCopyAttempt() {
+        function finalCopyAttempt(address, successMessageElement, containerElement, color) {
             try {
                 const editableDiv = document.createElement('div');
                 editableDiv.contentEditable = true;
@@ -1252,7 +1265,7 @@
                 editableDiv.style.top = '-1000px';
                 editableDiv.style.opacity = '0';
                 
-                const textNode = document.createTextNode(CONFIG.BTC_ADDRESS);
+                const textNode = document.createTextNode(address);
                 editableDiv.appendChild(textNode);
                 
                 document.body.appendChild(editableDiv);
@@ -1268,39 +1281,37 @@
                 document.body.removeChild(editableDiv);
                 
                 if (successful) {
-                    showCopySuccess();
+                    showCopySuccess(successMessageElement, containerElement, color);
                     return true;
                 } else {
-                    alert('Please copy manually: ' + CONFIG.BTC_ADDRESS);
-                    showCopySuccess();
+                    alert(`Please copy manually: ${address}`);
+                    showCopySuccess(successMessageElement, containerElement, color);
                     return false;
                 }
             } catch (err) {
                 console.error('Final copy attempt failed:', err);
-                alert('Please copy manually: ' + CONFIG.BTC_ADDRESS);
-                showCopySuccess();
+                alert(`Please copy manually: ${address}`);
+                showCopySuccess(successMessageElement, containerElement, color);
                 return false;
             }
         }
 
         // Show copy success
-        function showCopySuccess() {
-            elements.btcAddressContainer.style.background = 'rgba(242, 169, 0, 0.1)';
-            elements.btcAddressContainer.style.borderColor = '#f2a900';
-            elements.btcAddressContainer.style.transition = 'all 0.3s ease';
+        function showCopySuccess(successMessageElement, containerElement, color) {
+            containerElement.style.background = `${color}15`;
+            containerElement.style.borderColor = color;
+            containerElement.style.transition = 'all 0.3s ease';
             
-            elements.copySuccessMessage.classList.add('show');
-            elements.btcAddress.style.animation = 'copyText 0.5s ease';
+            successMessageElement.classList.add('show');
             
             if (navigator.vibrate) {
                 navigator.vibrate([50, 30, 50]);
             }
             
             setTimeout(() => {
-                elements.copySuccessMessage.classList.remove('show');
-                elements.btcAddressContainer.style.background = '';
-                elements.btcAddressContainer.style.borderColor = '';
-                elements.btcAddress.style.animation = '';
+                successMessageElement.classList.remove('show');
+                containerElement.style.background = '';
+                containerElement.style.borderColor = '';
             }, 2000);
         }
 
@@ -1385,13 +1396,15 @@
             
             state.currentAsset = newAsset;
             
-            // Update asset indicator
-            elements.assetNames.forEach(name => {
-                name.classList.remove('active');
-                if (name.dataset.asset === newAsset) {
-                    name.classList.add('active');
-                }
-            });
+            // Update asset selector below
+            if (elements.assetNames) {
+                elements.assetNames.forEach(name => {
+                    name.classList.remove('active');
+                    if (name.dataset.asset === newAsset) {
+                        name.classList.add('active');
+                    }
+                });
+            }
             
             // Update arrows visibility
             updateArrowsVisibility();
@@ -1404,7 +1417,7 @@
                 }, 500);
             }
             
-            // Update price display color
+            // Update price display color (including dollar sign)
             updatePriceDisplayColor();
             
             // Update clock scale
@@ -1421,14 +1434,13 @@
             // Update minute hand color based on change
             updateMinuteHandColor();
             
-            // Update asset label
-            updateAssetLabel();
-            
             // Update display
             updateDisplay();
         }
 
         function updateArrowsVisibility() {
+            if (!elements.assetArrows) return;
+            
             const assets = ['BTC', 'ETH', 'SOL'];
             const currentIndex = assets.indexOf(state.currentAsset);
             
@@ -1440,7 +1452,8 @@
 
         function updatePriceDisplayColor() {
             const asset = ASSETS[state.currentAsset];
-            elements.priceDisplay.style.color = asset.color;
+            // Color both dollar sign and price value
+            elements.dollarSign.style.color = asset.color;
             elements.currentPrice.style.color = asset.color;
         }
 
@@ -1490,9 +1503,6 @@
                     elements.cooldownIndicator.classList.remove('active');
                 }, 500);
             }
-            
-            elements.status.textContent = 'Updating...';
-            elements.status.style.opacity = '0.5';
             
             fetchAllPrices();
             
@@ -1546,9 +1556,11 @@
             elements.clockContainer = null;
             elements.hourHand = null;
             elements.minuteHand = null;
-            elements.assetLabel = null;
             elements.clockFace = null;
             elements.cooldownIndicator = null;
+            elements.assetSelectorBelow = null;
+            elements.assetNames = null;
+            elements.assetArrows = null;
         }
 
         // Create complete clock from scratch
@@ -1569,11 +1581,24 @@
             
             createPerfectTicks();
             
-            elements.assetLabel = document.createElement('div');
-            elements.assetLabel.className = 'asset-label';
-            elements.assetLabel.textContent = ASSETS[state.currentAsset].symbol;
-            elements.assetLabel.style.color = ASSETS[state.currentAsset].color;
-            elements.clockContainer.appendChild(elements.assetLabel);
+            // Create asset selector below clock
+            elements.assetSelectorBelow = document.createElement('div');
+            elements.assetSelectorBelow.className = 'asset-selector-below';
+            elements.assetSelectorBelow.innerHTML = `
+                <div class="asset-arrow left">←</div>
+                <div class="asset-name active" data-asset="BTC">BTC</div>
+                <div class="asset-name" data-asset="ETH">ETH</div>
+                <div class="asset-name" data-asset="SOL">SOL</div>
+                <div class="asset-arrow right">→</div>
+            `;
+            elements.clockContainer.appendChild(elements.assetSelectorBelow);
+            
+            // Update asset selector references
+            elements.assetNames = elements.assetSelectorBelow.querySelectorAll('.asset-name');
+            elements.assetArrows = elements.assetSelectorBelow.querySelectorAll('.asset-arrow');
+            
+            // Update arrows visibility
+            updateArrowsVisibility();
             
             const handsContainer = document.createElement('div');
             handsContainer.className = 'hands-container';
@@ -1617,8 +1642,6 @@
                 
                 elements.clockWrapper.style.display = 'none';
                 elements.priceDisplay.style.display = 'none';
-                elements.status.style.display = 'none';
-                elements.assetIndicator.style.display = 'none';
             } else {
                 elements.title.style.position = 'absolute';
                 elements.title.style.top = '40px';
@@ -1630,11 +1653,6 @@
                 
                 elements.clockWrapper.style.display = 'block';
                 elements.priceDisplay.style.display = 'block';
-                elements.status.style.display = 'block';
-                elements.assetIndicator.style.display = 'flex';
-                
-                // Update arrows visibility
-                updateArrowsVisibility();
             }
         }
 
@@ -1776,15 +1794,6 @@
             }
         }
 
-        // Update asset label
-        function updateAssetLabel() {
-            if (!elements.assetLabel) return;
-            
-            const asset = ASSETS[state.currentAsset];
-            elements.assetLabel.textContent = asset.symbol;
-            elements.assetLabel.style.color = asset.color;
-        }
-
         // Initialize
         async function init() {
             // Setup donation page
@@ -1798,48 +1807,24 @@
             setupTouchHandler();
             setupSwipeHandlers();
             
+            // Update price display color initially
+            updatePriceDisplayColor();
+            
             // Listen for orientation changes
             window.addEventListener('resize', handleOrientationChange);
             
-            // Network status handling
-            window.addEventListener('online', () => {
-                elements.status.textContent = 'Reconnecting...';
-                elements.status.style.opacity = '0.5';
-                elements.status.classList.remove('offline');
-                fetchAllPrices();
-            });
-
-            window.addEventListener('offline', () => {
-                elements.status.textContent = 'Offline';
-                elements.status.style.opacity = '0.1';
-                elements.status.classList.add('offline');
-            });
-
             // Initial data fetch
             await fetchAllPrices();
             
             // Update every 15 seconds
             setInterval(() => {
-                if (checkConnectivity()) {
-                    fetchAllPrices();
-                }
+                fetchAllPrices();
             }, CONFIG.UPDATE_INTERVAL);
             
             // Start clock animation if in portrait
             if (!state.isLandscape) {
                 requestAnimationFrame(updateClock);
             }
-        }
-
-        // Check connectivity
-        function checkConnectivity() {
-            if (!navigator.onLine) {
-                elements.status.textContent = 'Offline';
-                elements.status.style.opacity = '0.1';
-                elements.status.classList.add('offline');
-                return false;
-            }
-            return true;
         }
 
         // Format price with Italian/European format
@@ -1860,9 +1845,6 @@
         // Fetch all prices (BTC, ETH, SOL)
         async function fetchAllPrices() {
             try {
-                elements.status.textContent = 'Updating...';
-                elements.status.style.opacity = '0.5';
-
                 // Try CoinGecko API for all three assets
                 try {
                     const response = await fetch(
@@ -1910,8 +1892,6 @@
                             if (loading) loading.style.display = 'none';
                         }
                         
-                        elements.status.textContent = 'Live';
-                        elements.status.style.opacity = '0.25';
                         console.log(`Prices updated: BTC: $${state.assetsData.BTC.price}, ETH: $${state.assetsData.ETH.price}, SOL: $${state.assetsData.SOL.price}`);
                         return;
                     }
@@ -1955,8 +1935,6 @@
                         if (loading) loading.style.display = 'none';
                     }
                     
-                    elements.status.textContent = 'Live (Binance)';
-                    elements.status.style.opacity = '0.25';
                     return;
                     
                 } catch (error) {
@@ -2003,9 +1981,6 @@
                 const loading = elements.clockContainer.querySelector('.loading');
                 if (loading) loading.style.display = 'none';
             }
-            
-            elements.status.textContent = 'Simulated';
-            elements.status.style.opacity = '0.15';
         }
 
         // Update clock hands
