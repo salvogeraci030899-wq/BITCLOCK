@@ -1,0 +1,2151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BITCLOCK">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/BITCLOCK.png">
+    <link rel="apple-touch-icon" href="/BITCLOCK.png">
+    
+    <title>BITCLOCK</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            touch-action: none;
+            overscroll-behavior: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+
+        /* Rotation overlay - black screen during orientation change */
+        .rotation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 9999;
+            display: none;
+        }
+
+        /* Asset Indicator */
+        .asset-indicator {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            z-index: 1001;
+            transition: all 0.3s ease;
+        }
+
+        .asset-name {
+            font-size: 1.4rem;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0 10px;
+        }
+
+        .asset-name.active {
+            opacity: 1;
+            font-weight: 400;
+        }
+
+        .asset-name[data-asset="BTC"] {
+            color: #F2A900;
+        }
+
+        .asset-name[data-asset="ETH"] {
+            color: #627EEA;
+        }
+
+        .asset-name[data-asset="SOL"] {
+            color: #00FFA3;
+        }
+
+        .asset-arrow {
+            font-size: 1.8rem;
+            opacity: 0.2;
+            color: rgba(255, 255, 255, 0.5);
+            transition: opacity 0.3s ease;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .asset-arrow.left {
+            left: -40px;
+        }
+
+        .asset-arrow.right {
+            right: -40px;
+        }
+
+        .asset-arrow.show {
+            opacity: 0.6;
+        }
+
+        /* Donation Overlay */
+        .donation-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000000;
+            z-index: 10000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .donation-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .donation-content {
+            max-width: 500px;
+            width: 90%;
+            margin: auto;
+            padding: 20px;
+            animation: fadeInUp 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .donation-title {
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 4px;
+            margin-bottom: 40px;
+            color: rgba(255, 255, 255, 0.9);
+            text-transform: uppercase;
+            text-align: center;
+            width: 100%;
+        }
+
+        .donation-section {
+            margin-bottom: 40px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .donation-subtitle {
+            font-size: 1.1rem;
+            font-weight: 400;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            text-align: center;
+            width: 100%;
+        }
+
+        .btc-address-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: visible;
+            width: 90%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btc-address-container:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .btc-address-container:active {
+            transform: scale(0.98);
+        }
+
+        .btc-address {
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            color: #f2a900;
+            word-break: break-all;
+            line-height: 1.4;
+            text-align: center;
+        }
+
+        .copy-hint {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-top: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-align: center;
+            width: 100%;
+        }
+
+        .copy-success-message {
+            font-size: 0.85rem;
+            color: #f2a900;
+            margin-top: 10px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            text-align: center;
+            width: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            position: relative;
+            height: 20px;
+        }
+
+        .copy-success-message.show {
+            opacity: 1;
+            animation: textPulse 0.5s ease;
+        }
+
+        @keyframes textPulse {
+            0% { transform: scale(0.95); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .donation-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            cursor: pointer;
+            text-align: center;
+            min-width: 200px;
+        }
+
+        .donation-button:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* Rimosso la X di chiusura in alto a destra */
+        .close-donation-top {
+            display: none;
+        }
+
+        .donation-footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            width: 100%;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .creator-credit {
+            margin-top: 8px;
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.25);
+            letter-spacing: 0.8px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            display: block;
+            text-align: center;
+        }
+
+        .creator-credit:hover {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .thank-you-text {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes copyPulse {
+            0% {
+                background: rgba(242, 169, 0, 0);
+            }
+            20% {
+                background: rgba(242, 169, 0, 0.25);
+            }
+            100% {
+                background: rgba(242, 169, 0, 0.15);
+            }
+        }
+
+        @keyframes copyText {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.05);
+                opacity: 0.9;
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .title {
+            position: absolute;
+            top: 40px;
+            font-weight: 300;
+            font-size: 2.2rem;
+            letter-spacing: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            text-transform: uppercase;
+            z-index: 1000;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .title:hover {
+            color: rgba(255, 255, 255, 1);
+        }
+
+        .clock-wrapper {
+            position: relative;
+            width: 85vmin;
+            height: 85vmin;
+            max-width: 500px;
+            max-height: 500px;
+            min-width: 300px;
+            min-height: 300px;
+            touch-action: manipulation;
+            cursor: pointer;
+        }
+
+        /* Clock container - will be completely recreated */
+        .clock-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        /* Perfect clock face */
+        .clock-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 50%;
+            transition: border-color 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+                      box-shadow 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Clock face active state - subtle illumination */
+        .clock-face.active {
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.08),
+                        inset 0 0 20px rgba(255, 255, 255, 0.04);
+        }
+
+        /* Perfect tick marks */
+        .tick {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.7);
+            transform-origin: 0% 0%;
+        }
+
+        .tick-hour {
+            width: 1.5px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .tick-five {
+            width: 1px;
+            height: 18px;
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .tick-minute {
+            width: 0.5px;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Price labels */
+        .price-label {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 13px;
+            font-weight: 300;
+            letter-spacing: 0.3px;
+            transform: translate(-50%, -50%);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Asset label */
+        .asset-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+
+        /* Hands */
+        .hands-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .hand {
+            position: absolute;
+            transform-origin: 50% 100%;
+            left: 50%;
+            bottom: 50%;
+            border-radius: 1px;
+            transition: transform 0.5s cubic-bezier(0.4, 2.3, 0.8, 1);
+            transform: translateX(-50%) rotate(0deg);
+        }
+
+        .hour-hand {
+            width: 2.2px;
+            height: 26%;
+            background: #ffffff;
+            z-index: 2;
+            box-shadow: 0 0 6px rgba(255, 255, 255, 0.4);
+        }
+
+        .minute-hand {
+            width: 1.2px;
+            height: 36%;
+            background: #ffffff;
+            z-index: 3;
+            transition: background 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        .center-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ffffff;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+        }
+
+        /* Price display */
+        .price-display {
+            position: absolute;
+            bottom: 50px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .current-price {
+            font-size: 2.6rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+            font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+            transition: color 0.3s ease;
+        }
+
+        .price-details {
+            margin-top: 12px;
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+        }
+
+        .detail {
+            text-align: center;
+        }
+
+        .detail-label {
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 2px;
+        }
+
+        .detail-value {
+            font-size: 0.9rem;
+            font-weight: 300;
+            font-family: 'SF Mono', monospace;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .positive {
+            color: #00ff9d;
+        }
+
+        .negative {
+            color: #ff4d4d;
+        }
+
+        .loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .loading::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            animation: loadingDot 1.4s infinite;
+            animation-delay: 0s;
+        }
+
+        .loading::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            animation: loadingDot 1.4s infinite;
+            animation-delay: 0.2s;
+        }
+
+        @keyframes loadingDot {
+            0%, 60%, 100% { 
+                transform: scale(1);
+                opacity: 0.5;
+            }
+            30% { 
+                transform: scale(1.5);
+                opacity: 1;
+            }
+        }
+
+        /* Status indicator */
+        .status {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.65rem;
+            color: rgba(255, 255, 255, 0.25);
+            letter-spacing: 1px;
+            font-weight: 300;
+        }
+
+        .status.offline {
+            color: #ff4d4d;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 0.1; }
+        }
+
+        /* Touch cooldown indicator */
+        .cooldown-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 94%;
+            height: 94%;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .cooldown-indicator.active {
+            opacity: 0.15;
+        }
+
+        /* Asset transition animation */
+        .asset-transition {
+            animation: assetTransition 0.5s ease-out;
+        }
+
+        @keyframes assetTransition {
+            0% { opacity: 0.5; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Swipe hint (optional, can be enabled later) */
+        .swipe-hint {
+            display: none;
+        }
+
+        /* Landscape mode - only title visible */
+        @media (orientation: landscape) and (max-height: 600px) {
+            .title {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) !important;
+                font-size: 4rem;
+                letter-spacing: 12px;
+            }
+
+            .asset-indicator,
+            .clock-wrapper,
+            .price-display,
+            .status,
+            .asset-label,
+            .loading {
+                display: none !important;
+            }
+        }
+
+        /* Portrait mode adjustments */
+        @media (max-width: 600px) and (orientation: portrait) {
+            .asset-indicator {
+                top: 80px;
+                gap: 20px;
+            }
+            
+            .asset-name {
+                font-size: 1.2rem;
+                letter-spacing: 2px;
+            }
+            
+            .asset-arrow.left {
+                left: -35px;
+            }
+            
+            .asset-arrow.right {
+                right: -35px;
+            }
+            
+            .clock-wrapper {
+                width: 90vmin;
+                height: 90vmin;
+            }
+            
+            .title {
+                font-size: 1.8rem;
+                letter-spacing: 6px;
+                top: 30px;
+            }
+            
+            .current-price {
+                font-size: 2.2rem;
+            }
+            
+            .price-display {
+                bottom: 40px;
+            }
+            
+            .asset-label {
+                bottom: -22px;
+                font-size: 12px;
+            }
+
+            .donation-title {
+                font-size: 1.5rem;
+                letter-spacing: 3px;
+                margin-bottom: 30px;
+            }
+
+            .donation-subtitle {
+                font-size: 1rem;
+            }
+
+            .btc-address {
+                font-size: 0.85rem;
+            }
+
+            .btc-address-container {
+                width: 85%;
+                padding: 15px;
+            }
+
+            .donation-content {
+                padding: 15px;
+            }
+
+            .donation-button {
+                padding: 10px 20px;
+                font-size: 0.85rem;
+                min-width: 180px;
+            }
+            
+            .copy-success-message {
+                font-size: 0.75rem;
+            }
+            
+            .creator-credit {
+                font-size: 0.65rem;
+            }
+        }
+
+        /* Small landscape devices */
+        @media (orientation: landscape) and (max-height: 400px) {
+            .title {
+                font-size: 3rem;
+                letter-spacing: 10px;
+            }
+        }
+
+        /* Donation page in landscape - hide it */
+        @media (orientation: landscape) {
+            .donation-overlay {
+                display: none !important;
+            }
+        }
+
+        /* Disable all interactions */
+        *:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="rotation-overlay"></div>
+    
+    <!-- Donation Overlay -->
+    <div class="donation-overlay" id="donationOverlay">
+        <div class="close-donation-top" id="closeDonationTop">×</div>
+        
+        <div class="donation-content">
+            <h2 class="donation-title">Support BITCLOCK</h2>
+            
+            <div class="donation-section">
+                <h3 class="donation-subtitle">Bitcoin Donation</h3>
+                <div class="btc-address-container" id="btcAddressContainer">
+                    <div class="btc-address" id="btcAddress">
+                        bc1p8qttqw943pwcj7jag4remvx63qyycujuem93z72el2s9agp4v7xsehgsg0
+                    </div>
+                    <div class="copy-hint">Tap to copy address</div>
+                </div>
+                <div class="copy-success-message" id="copySuccessMessage">
+                    Address Copied!
+                </div>
+            </div>
+            
+            <div class="donation-section">
+                <h3 class="donation-subtitle">Other Ways to Support</h3>
+                <div class="button-group">
+                    <a href="https://buymeacoffee.com/salvogrc" target="_blank" rel="noopener" class="donation-button">
+                        Buy Me a Coffee
+                    </a>
+                    <a href="https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00CQ6FMX2C" target="_blank" rel="noopener" class="donation-button">
+                        Binance Referral
+                    </a>
+                    <a href="https://share.bitget.com/u/BVDFSB1D" target="_blank" rel="noopener" class="donation-button">
+                        Bitget Referral
+                    </a>
+                    <button class="donation-button" id="closeDonationBottom">
+                        Close
+                    </button>
+                </div>
+            </div>
+            
+            <div class="donation-footer">
+                <div class="thank-you-text">Thank you for your support</div>
+                <a href="https://x.com/salvogrc" target="_blank" rel="noopener" class="creator-credit">Created by Salvatore Geraci, Italy</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h1 class="title" id="pageTitle">BITCLOCK</h1>
+        
+        <!-- Asset Indicator -->
+        <div class="asset-indicator" id="assetIndicator">
+            <div class="asset-arrow left">←</div>
+            <div class="asset-name active" data-asset="BTC">BTC</div>
+            <div class="asset-name" data-asset="ETH">ETH</div>
+            <div class="asset-name" data-asset="SOL">SOL</div>
+            <div class="asset-arrow right">→</div>
+        </div>
+        
+        <div class="clock-wrapper" id="clockWrapper">
+            <!-- Clock container will be dynamically created -->
+        </div>
+        
+        <div class="price-display">
+            <div class="current-price">$<span id="currentPrice">00.000</span></div>
+            
+            <div class="price-details">
+                <div class="detail">
+                    <div class="detail-label">Change</div>
+                    <div class="detail-value positive" id="priceChange">+0,00%</div>
+                </div>
+                <div class="detail">
+                    <div class="detail-label">Range</div>
+                    <div class="detail-value" id="hourRange">$00k-00k</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status" id="status">Live</div>
+    </div>
+
+    <script>
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                        
+                        // Check for updates periodically
+                        setInterval(() => {
+                            registration.update();
+                        }, 60 * 60 * 1000); // Check for updates every hour
+                    })
+                    .catch(function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+            
+            // Listen for controller changes (updates)
+            let refreshing = false;
+            navigator.serviceWorker.addEventListener('controllerchange', function() {
+                if (!refreshing) {
+                    window.location.reload();
+                    refreshing = true;
+                }
+            });
+        }
+        
+        // Prevent all interactions except clock touch
+        document.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+        
+        document.addEventListener('gesturestart', function(e) {
+            e.preventDefault();
+        });
+        
+        document.addEventListener('wheel', function(e) {
+            e.preventDefault();
+        }, { passive: false });
+        
+        document.addEventListener('dblclick', function(e) {
+            e.preventDefault();
+        });
+        
+        // Configuration
+        const CONFIG = {
+            UPDATE_INTERVAL: 15000, // 15 secondi
+            MANUAL_UPDATE_COOLDOWN: 10000, // 10 seconds cooldown for manual updates
+            BTC_ADDRESS: 'bc1p8qttqw943pwcj7jag4remvx63qyycujuem93z72el2s9agp4v7xsehgsg0',
+            BINANCE_REFERRAL: 'https://www.binance.com/activity/referral-entry/CPA?ref=CPA_00CQ6FMX2C',
+            BITGET_REFERRAL: 'https://share.bitget.com/u/BVDFSB1D'
+        };
+
+        // Assets Configuration
+        const ASSETS = {
+            BTC: {
+                id: 'bitcoin',
+                name: 'Bitcoin',
+                scale: 120000,
+                baseScale: 120000,
+                color: '#F2A900',
+                symbol: 'BTC'
+            },
+            ETH: {
+                id: 'ethereum',
+                name: 'Ethereum',
+                scale: 6000,
+                baseScale: 6000,
+                color: '#627EEA',
+                symbol: 'ETH'
+            },
+            SOL: {
+                id: 'solana',
+                name: 'Solana',
+                scale: 300,
+                baseScale: 300,
+                color: '#00FFA3',
+                symbol: 'SOL'
+            }
+        };
+
+        // State
+        let state = {
+            currentAsset: 'BTC',
+            assetsData: {
+                BTC: { price: 34750, change: 0, previousPrice: 34750 },
+                ETH: { price: 3000, change: 0, previousPrice: 3000 },
+                SOL: { price: 130, change: 0, previousPrice: 130 }
+            },
+            isLive: false,
+            isLoading: true,
+            isLandscape: window.innerHeight <= 600 && window.innerWidth > window.innerHeight,
+            animationFrameId: null,
+            canManuallyUpdate: true,
+            lastManualUpdate: 0,
+            donationOverlayVisible: false,
+            touchStartX: 0,
+            touchEndX: 0,
+            swipeThreshold: 50 // Minimum distance for swipe
+        };
+
+        // DOM Elements
+        const elements = {
+            currentPrice: document.getElementById('currentPrice'),
+            priceChange: document.getElementById('priceChange'),
+            hourRange: document.getElementById('hourRange'),
+            status: document.getElementById('status'),
+            title: document.querySelector('.title'),
+            priceDisplay: document.querySelector('.price-display'),
+            assetLabel: null,
+            clockWrapper: document.querySelector('.clock-wrapper'),
+            overlay: document.querySelector('.rotation-overlay'),
+            clockContainer: null,
+            hourHand: null,
+            minuteHand: null,
+            clockFace: null,
+            cooldownIndicator: null,
+            // Asset elements
+            assetIndicator: document.getElementById('assetIndicator'),
+            assetNames: document.querySelectorAll('.asset-name'),
+            assetArrows: document.querySelectorAll('.asset-arrow'),
+            // Donation elements
+            donationOverlay: document.getElementById('donationOverlay'),
+            closeDonationTop: document.getElementById('closeDonationTop'),
+            closeDonationBottom: document.getElementById('closeDonationBottom'),
+            btcAddressContainer: document.getElementById('btcAddressContainer'),
+            btcAddress: document.getElementById('btcAddress'),
+            copySuccessMessage: document.getElementById('copySuccessMessage'),
+            pageTitle: document.getElementById('pageTitle'),
+            creatorCredit: document.querySelector('.creator-credit')
+        };
+
+        // Setup donation page
+        function setupDonationPage() {
+            // Set BTC address
+            elements.btcAddress.textContent = CONFIG.BTC_ADDRESS;
+            
+            // Title click to open donation (only in portrait)
+            elements.pageTitle.addEventListener('click', function(e) {
+                if (isPortraitMode()) {
+                    toggleDonationOverlay();
+                }
+            });
+            
+            elements.pageTitle.addEventListener('touchstart', function(e) {
+                if (isPortraitMode()) {
+                    toggleDonationOverlay();
+                }
+            });
+            
+            // Creator credit click to open Twitter in browser
+            if (elements.creatorCredit) {
+                elements.creatorCredit.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open('https://x.com/salvogrc', '_blank');
+                });
+                
+                elements.creatorCredit.addEventListener('touchstart', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    window.open('https://x.com/salvogrc', '_blank');
+                });
+            }
+            
+            // Background click to open donation (outside clock, only in portrait)
+            document.addEventListener('click', function(e) {
+                // Don't open if clicking on clock or its children
+                if (e.target.closest('.clock-wrapper') || 
+                    e.target.closest('.price-display') || 
+                    e.target.closest('.status') ||
+                    e.target.closest('.asset-indicator')) {
+                    return;
+                }
+                
+                // Don't open if already open or not in portrait
+                if (state.donationOverlayVisible || !isPortraitMode()) return;
+                
+                toggleDonationOverlay();
+            });
+            
+            // Close donation overlay - both buttons
+            elements.closeDonationTop.addEventListener('click', toggleDonationOverlay);
+            elements.closeDonationTop.addEventListener('touchstart', toggleDonationOverlay);
+            
+            elements.closeDonationBottom.addEventListener('click', toggleDonationOverlay);
+            elements.closeDonationBottom.addEventListener('touchstart', toggleDonationOverlay);
+            
+            // Copy BTC address functionality
+            let copyInProgress = false;
+            let lastCopyTime = 0;
+            
+            elements.btcAddressContainer.addEventListener('click', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const now = Date.now();
+                if (now - lastCopyTime < 500) return;
+                lastCopyTime = now;
+                
+                if (copyInProgress) return;
+                copyInProgress = true;
+                
+                await copyBTCAddress();
+                
+                copyInProgress = false;
+            });
+            
+            elements.btcAddressContainer.addEventListener('touchstart', async function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const now = Date.now();
+                if (now - lastCopyTime < 500) return;
+                lastCopyTime = now;
+                
+                if (copyInProgress) return;
+                copyInProgress = true;
+                
+                await copyBTCAddress();
+                
+                copyInProgress = false;
+            });
+            
+            // Close on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && state.donationOverlayVisible) {
+                    toggleDonationOverlay();
+                }
+            });
+        }
+
+        // Check if device is in portrait mode
+        function isPortraitMode() {
+            return window.innerHeight > window.innerWidth && window.innerHeight > 600;
+        }
+
+        function toggleDonationOverlay(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            // Only allow in portrait mode
+            if (!isPortraitMode() && !state.donationOverlayVisible) {
+                return;
+            }
+            
+            state.donationOverlayVisible = !state.donationOverlayVisible;
+            
+            if (state.donationOverlayVisible) {
+                elements.donationOverlay.classList.add('active');
+                // Reset copy message when opening donation overlay
+                elements.copySuccessMessage.classList.remove('show');
+            } else {
+                elements.donationOverlay.classList.remove('active');
+            }
+        }
+
+        // Copy BTC address
+        async function copyBTCAddress() {
+            elements.copySuccessMessage.classList.remove('show');
+            void elements.copySuccessMessage.offsetWidth;
+            
+            // Modern Clipboard API
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(CONFIG.BTC_ADDRESS);
+                    showCopySuccess();
+                    return true;
+                } catch (err) {
+                    console.log('Modern Clipboard API failed, trying fallback...');
+                }
+            }
+            
+            // Legacy method with textarea
+            try {
+                const textArea = document.createElement('textarea');
+                textArea.value = CONFIG.BTC_ADDRESS;
+                
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                textArea.style.opacity = '0';
+                textArea.style.pointerEvents = 'none';
+                
+                document.body.appendChild(textArea);
+                
+                textArea.focus();
+                textArea.select();
+                textArea.setSelectionRange(0, CONFIG.BTC_ADDRESS.length);
+                
+                const successful = document.execCommand('copy');
+                
+                document.body.removeChild(textArea);
+                
+                if (successful) {
+                    showCopySuccess();
+                    return true;
+                } else {
+                    return fallbackCopyMethod();
+                }
+                
+            } catch (err) {
+                console.error('Legacy copy method failed:', err);
+                return fallbackCopyMethod();
+            }
+        }
+
+        function fallbackCopyMethod() {
+            try {
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = CONFIG.BTC_ADDRESS;
+                input.style.position = 'absolute';
+                input.style.left = '-1000px';
+                input.style.top = '-1000px';
+                input.style.opacity = '0';
+                input.readOnly = true;
+                
+                document.body.appendChild(input);
+                
+                input.focus();
+                input.select();
+                input.setSelectionRange(0, CONFIG.BTC_ADDRESS.length);
+                
+                if (navigator.userAgent.match(/iphone|ipad|ipod/i)) {
+                    const range = document.createRange();
+                    range.selectNodeContents(input);
+                    const selection = window.getSelection();
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                    input.setSelectionRange(0, 999999);
+                }
+                
+                const successful = document.execCommand('copy');
+                
+                document.body.removeChild(input);
+                
+                if (successful) {
+                    showCopySuccess();
+                    return true;
+                } else {
+                    return finalCopyAttempt();
+                }
+                
+            } catch (err) {
+                console.error('Fallback copy method failed:', err);
+                return finalCopyAttempt();
+            }
+        }
+
+        function finalCopyAttempt() {
+            try {
+                const editableDiv = document.createElement('div');
+                editableDiv.contentEditable = true;
+                editableDiv.style.position = 'absolute';
+                editableDiv.style.left = '-1000px';
+                editableDiv.style.top = '-1000px';
+                editableDiv.style.opacity = '0';
+                
+                const textNode = document.createTextNode(CONFIG.BTC_ADDRESS);
+                editableDiv.appendChild(textNode);
+                
+                document.body.appendChild(editableDiv);
+                
+                const range = document.createRange();
+                range.selectNodeContents(editableDiv);
+                const selection = window.getSelection();
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
+                const successful = document.execCommand('copy');
+                
+                document.body.removeChild(editableDiv);
+                
+                if (successful) {
+                    showCopySuccess();
+                    return true;
+                } else {
+                    alert('Please copy manually: ' + CONFIG.BTC_ADDRESS);
+                    showCopySuccess();
+                    return false;
+                }
+            } catch (err) {
+                console.error('Final copy attempt failed:', err);
+                alert('Please copy manually: ' + CONFIG.BTC_ADDRESS);
+                showCopySuccess();
+                return false;
+            }
+        }
+
+        // Show copy success
+        function showCopySuccess() {
+            elements.btcAddressContainer.style.background = 'rgba(242, 169, 0, 0.1)';
+            elements.btcAddressContainer.style.borderColor = '#f2a900';
+            elements.btcAddressContainer.style.transition = 'all 0.3s ease';
+            
+            elements.copySuccessMessage.classList.add('show');
+            elements.btcAddress.style.animation = 'copyText 0.5s ease';
+            
+            if (navigator.vibrate) {
+                navigator.vibrate([50, 30, 50]);
+            }
+            
+            setTimeout(() => {
+                elements.copySuccessMessage.classList.remove('show');
+                elements.btcAddressContainer.style.background = '';
+                elements.btcAddressContainer.style.borderColor = '';
+                elements.btcAddress.style.animation = '';
+            }, 2000);
+        }
+
+        // Setup swipe handlers
+        function setupSwipeHandlers() {
+            if (!elements.clockWrapper || state.isLandscape) return;
+            
+            // Touch events for mobile
+            elements.clockWrapper.addEventListener('touchstart', handleTouchStart);
+            elements.clockWrapper.addEventListener('touchend', handleTouchEnd);
+            
+            // Mouse events for desktop
+            elements.clockWrapper.addEventListener('mousedown', handleMouseDown);
+            elements.clockWrapper.addEventListener('mouseup', handleMouseUp);
+            
+            // Keyboard arrows for desktop
+            document.addEventListener('keydown', handleKeyDown);
+        }
+
+        function handleTouchStart(e) {
+            state.touchStartX = e.changedTouches[0].screenX;
+        }
+
+        function handleTouchEnd(e) {
+            state.touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }
+
+        function handleMouseDown(e) {
+            state.touchStartX = e.screenX;
+            document.addEventListener('mouseup', handleMouseUp);
+        }
+
+        function handleMouseUp(e) {
+            state.touchEndX = e.screenX;
+            handleSwipe();
+            document.removeEventListener('mouseup', handleMouseUp);
+        }
+
+        function handleSwipe() {
+            const diff = state.touchStartX - state.touchEndX;
+            
+            if (Math.abs(diff) > state.swipeThreshold) {
+                if (diff > 0) {
+                    // Swipe left - next asset
+                    switchToNextAsset();
+                } else {
+                    // Swipe right - previous asset
+                    switchToPreviousAsset();
+                }
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (state.isLandscape) return;
+            
+            if (e.key === 'ArrowLeft') {
+                switchToPreviousAsset();
+            } else if (e.key === 'ArrowRight') {
+                switchToNextAsset();
+            }
+        }
+
+        function switchToNextAsset() {
+            const assets = ['BTC', 'ETH', 'SOL'];
+            const currentIndex = assets.indexOf(state.currentAsset);
+            const nextIndex = (currentIndex + 1) % assets.length;
+            
+            switchAsset(assets[nextIndex]);
+        }
+
+        function switchToPreviousAsset() {
+            const assets = ['BTC', 'ETH', 'SOL'];
+            const currentIndex = assets.indexOf(state.currentAsset);
+            const prevIndex = (currentIndex - 1 + assets.length) % assets.length;
+            
+            switchAsset(assets[prevIndex]);
+        }
+
+        function switchAsset(newAsset) {
+            if (newAsset === state.currentAsset) return;
+            
+            state.currentAsset = newAsset;
+            
+            // Update asset indicator
+            elements.assetNames.forEach(name => {
+                name.classList.remove('active');
+                if (name.dataset.asset === newAsset) {
+                    name.classList.add('active');
+                }
+            });
+            
+            // Update arrows visibility
+            updateArrowsVisibility();
+            
+            // Apply transition effect
+            if (elements.clockContainer) {
+                elements.clockContainer.classList.add('asset-transition');
+                setTimeout(() => {
+                    elements.clockContainer.classList.remove('asset-transition');
+                }, 500);
+            }
+            
+            // Update price display color
+            updatePriceDisplayColor();
+            
+            // Update clock scale
+            updateScale();
+            
+            // Update price labels if clock exists
+            if (elements.clockContainer) {
+                updatePriceLabels();
+            }
+            
+            // Update clock hands position
+            updateClockHands();
+            
+            // Update minute hand color based on change
+            updateMinuteHandColor();
+            
+            // Update asset label
+            updateAssetLabel();
+            
+            // Update display
+            updateDisplay();
+        }
+
+        function updateArrowsVisibility() {
+            const assets = ['BTC', 'ETH', 'SOL'];
+            const currentIndex = assets.indexOf(state.currentAsset);
+            
+            // Show left arrow if not on first asset
+            elements.assetArrows[0].classList.toggle('show', currentIndex > 0);
+            // Show right arrow if not on last asset
+            elements.assetArrows[1].classList.toggle('show', currentIndex < assets.length - 1);
+        }
+
+        function updatePriceDisplayColor() {
+            const asset = ASSETS[state.currentAsset];
+            elements.priceDisplay.style.color = asset.color;
+            elements.currentPrice.style.color = asset.color;
+        }
+
+        // Touch/click handler for manual update
+        function setupTouchHandler() {
+            if (!elements.clockWrapper || state.isLandscape) return;
+            
+            elements.clockWrapper.removeEventListener('click', handleClockTouch);
+            elements.clockWrapper.removeEventListener('touchstart', handleClockTouch);
+            
+            elements.clockWrapper.addEventListener('click', handleClockTouch);
+            elements.clockWrapper.addEventListener('touchstart', handleClockTouch);
+        }
+
+        function handleClockTouch(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (state.isLandscape) return;
+            
+            const now = Date.now();
+            const timeSinceLastUpdate = now - state.lastManualUpdate;
+            
+            if (!state.canManuallyUpdate || timeSinceLastUpdate < CONFIG.MANUAL_UPDATE_COOLDOWN) {
+                if (elements.clockFace) {
+                    elements.clockFace.classList.add('active');
+                    setTimeout(() => {
+                        elements.clockFace.classList.remove('active');
+                    }, 300);
+                }
+                return;
+            }
+            
+            state.canManuallyUpdate = false;
+            state.lastManualUpdate = now;
+            
+            if (elements.clockFace) {
+                elements.clockFace.classList.add('active');
+                setTimeout(() => {
+                    elements.clockFace.classList.remove('active');
+                }, 800);
+            }
+            
+            if (elements.cooldownIndicator) {
+                elements.cooldownIndicator.classList.add('active');
+                setTimeout(() => {
+                    elements.cooldownIndicator.classList.remove('active');
+                }, 500);
+            }
+            
+            elements.status.textContent = 'Updating...';
+            elements.status.style.opacity = '0.5';
+            
+            fetchAllPrices();
+            
+            setTimeout(() => {
+                state.canManuallyUpdate = true;
+            }, CONFIG.MANUAL_UPDATE_COOLDOWN);
+        }
+
+        // Orientation change handling
+        let orientationChangeTimeout;
+        let lastOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+
+        function handleOrientationChange() {
+            const currentOrientation = window.innerWidth > window.innerHeight ? 'landscape' : 'portrait';
+            
+            if (currentOrientation !== lastOrientation) {
+                elements.overlay.style.display = 'block';
+                
+                if (orientationChangeTimeout) {
+                    clearTimeout(orientationChangeTimeout);
+                }
+                
+                orientationChangeTimeout = setTimeout(() => {
+                    elements.overlay.style.display = 'none';
+                    
+                    if (state.animationFrameId) {
+                        cancelAnimationFrame(state.animationFrameId);
+                        state.animationFrameId = null;
+                    }
+                    
+                    destroyClock();
+                    updateOrientationDisplay();
+                    createClock();
+                    
+                    setupTouchHandler();
+                    setupSwipeHandlers();
+                    
+                    if (!state.isLandscape) {
+                        requestAnimationFrame(updateClock);
+                    }
+                    
+                    lastOrientation = currentOrientation;
+                }, 1000);
+            }
+        }
+
+        // Completely destroy clock
+        function destroyClock() {
+            elements.clockWrapper.innerHTML = '';
+            
+            elements.clockContainer = null;
+            elements.hourHand = null;
+            elements.minuteHand = null;
+            elements.assetLabel = null;
+            elements.clockFace = null;
+            elements.cooldownIndicator = null;
+        }
+
+        // Create complete clock from scratch
+        function createClock() {
+            if (state.isLandscape) return;
+            
+            elements.clockContainer = document.createElement('div');
+            elements.clockContainer.className = 'clock-container';
+            elements.clockWrapper.appendChild(elements.clockContainer);
+            
+            elements.clockFace = document.createElement('div');
+            elements.clockFace.className = 'clock-face';
+            elements.clockContainer.appendChild(elements.clockFace);
+            
+            elements.cooldownIndicator = document.createElement('div');
+            elements.cooldownIndicator.className = 'cooldown-indicator';
+            elements.clockContainer.appendChild(elements.cooldownIndicator);
+            
+            createPerfectTicks();
+            
+            elements.assetLabel = document.createElement('div');
+            elements.assetLabel.className = 'asset-label';
+            elements.assetLabel.textContent = ASSETS[state.currentAsset].symbol;
+            elements.assetLabel.style.color = ASSETS[state.currentAsset].color;
+            elements.clockContainer.appendChild(elements.assetLabel);
+            
+            const handsContainer = document.createElement('div');
+            handsContainer.className = 'hands-container';
+            elements.clockContainer.appendChild(handsContainer);
+            
+            elements.hourHand = document.createElement('div');
+            elements.hourHand.className = 'hand hour-hand';
+            handsContainer.appendChild(elements.hourHand);
+            
+            elements.minuteHand = document.createElement('div');
+            elements.minuteHand.className = 'hand minute-hand';
+            handsContainer.appendChild(elements.minuteHand);
+            
+            const centerDot = document.createElement('div');
+            centerDot.className = 'center-dot';
+            elements.clockContainer.appendChild(centerDot);
+            
+            const loading = document.createElement('div');
+            loading.className = 'loading';
+            loading.textContent = 'Loading';
+            elements.clockContainer.appendChild(loading);
+            
+            if (!state.isLoading) {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Update display based on orientation
+        function updateOrientationDisplay() {
+            const isLandscape = window.innerHeight <= 600 && window.innerWidth > window.innerHeight;
+            state.isLandscape = isLandscape;
+            
+            if (isLandscape) {
+                elements.title.style.position = 'fixed';
+                elements.title.style.top = '50%';
+                elements.title.style.left = '50%';
+                elements.title.style.transform = 'translate(-50%, -50%)';
+                elements.title.style.fontSize = window.innerHeight <= 400 ? '3rem' : '4rem';
+                elements.title.style.letterSpacing = window.innerHeight <= 400 ? '10px' : '12px';
+                elements.title.style.display = 'block';
+                
+                elements.clockWrapper.style.display = 'none';
+                elements.priceDisplay.style.display = 'none';
+                elements.status.style.display = 'none';
+                elements.assetIndicator.style.display = 'none';
+            } else {
+                elements.title.style.position = 'absolute';
+                elements.title.style.top = '40px';
+                elements.title.style.left = '50%';
+                elements.title.style.transform = 'translateX(-50%)';
+                elements.title.style.fontSize = window.innerWidth <= 600 ? '1.8rem' : '2.2rem';
+                elements.title.style.letterSpacing = window.innerWidth <= 600 ? '6px' : '8px';
+                elements.title.style.display = 'block';
+                
+                elements.clockWrapper.style.display = 'block';
+                elements.priceDisplay.style.display = 'block';
+                elements.status.style.display = 'block';
+                elements.assetIndicator.style.display = 'flex';
+                
+                // Update arrows visibility
+                updateArrowsVisibility();
+            }
+        }
+
+        // Create perfect tick marks
+        function createPerfectTicks() {
+            if (!elements.clockContainer || state.isLandscape) return;
+            
+            const container = elements.clockContainer;
+            const width = container.offsetWidth;
+            const height = container.offsetHeight;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2 - 10;
+            
+            for (let i = 0; i < 60; i++) {
+                const tick = document.createElement('div');
+                const angle = (i * 6) * (Math.PI / 180);
+                
+                const x = centerX + Math.sin(angle) * (radius - 1);
+                const y = centerY - Math.cos(angle) * (radius - 1);
+                
+                if (i % 15 === 0) {
+                    tick.className = 'tick tick-hour';
+                } else if (i % 5 === 0) {
+                    tick.className = 'tick tick-five';
+                } else {
+                    tick.className = 'tick tick-minute';
+                }
+                
+                tick.style.left = `${x}px`;
+                tick.style.top = `${y}px`;
+                
+                const rotation = i * 6;
+                tick.style.transform = `rotate(${rotation}deg)`;
+                tick.style.transformOrigin = '0% 0%';
+                
+                container.appendChild(tick);
+            }
+
+            updatePriceLabels();
+        }
+
+        // Update price labels based on current scale
+        function updatePriceLabels() {
+            if (!elements.clockContainer || state.isLandscape) return;
+            
+            const existingLabels = elements.clockContainer.querySelectorAll('.price-label');
+            existingLabels.forEach(el => el.remove());
+            
+            const width = elements.clockContainer.offsetWidth;
+            const height = elements.clockContainer.offsetHeight;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 2 - 10;
+            
+            const asset = ASSETS[state.currentAsset];
+            const scale = asset.scale;
+            
+            let labels;
+            if (state.currentAsset === 'BTC') {
+                if (scale === 120000) {
+                    labels = [
+                        { angle: -90, text: '120k', value: 120000 },
+                        { angle: 0, text: '30k', value: 30000 },
+                        { angle: 90, text: '60k', value: 60000 },
+                        { angle: 180, text: '90k', value: 90000 }
+                    ];
+                } else {
+                    labels = [
+                        { angle: -90, text: '240k', value: 240000 },
+                        { angle: 0, text: '150k', value: 150000 },
+                        { angle: 90, text: '180k', value: 180000 },
+                        { angle: 180, text: '210k', value: 210000 }
+                    ];
+                }
+            } else if (state.currentAsset === 'ETH') {
+                if (scale === 6000) {
+                    labels = [
+                        { angle: -90, text: '6k', value: 6000 },
+                        { angle: 0, text: '1.5k', value: 1500 },
+                        { angle: 90, text: '3k', value: 3000 },
+                        { angle: 180, text: '4.5k', value: 4500 }
+                    ];
+                } else {
+                    labels = [
+                        { angle: -90, text: '12k', value: 12000 },
+                        { angle: 0, text: '7.5k', value: 7500 },
+                        { angle: 90, text: '9k', value: 9000 },
+                        { angle: 180, text: '10.5k', value: 10500 }
+                    ];
+                }
+            } else if (state.currentAsset === 'SOL') {
+                if (scale === 300) {
+                    labels = [
+                        { angle: -90, text: '300', value: 300 },
+                        { angle: 0, text: '75', value: 75 },
+                        { angle: 90, text: '150', value: 150 },
+                        { angle: 180, text: '225', value: 225 }
+                    ];
+                } else {
+                    labels = [
+                        { angle: -90, text: '600', value: 600 },
+                        { angle: 0, text: '375', value: 375 },
+                        { angle: 90, text: '450', value: 450 },
+                        { angle: 180, text: '525', value: 525 }
+                    ];
+                }
+            }
+
+            labels.forEach(label => {
+                const labelEl = document.createElement('div');
+                labelEl.className = 'price-label';
+                labelEl.textContent = label.text;
+                
+                const angleRad = label.angle * (Math.PI / 180);
+                const labelRadius = radius - 48;
+                
+                const x = centerX + Math.cos(angleRad) * labelRadius;
+                const y = centerY + Math.sin(angleRad) * labelRadius;
+                
+                labelEl.style.left = `${x}px`;
+                labelEl.style.top = `${y}px`;
+                
+                elements.clockContainer.appendChild(labelEl);
+            });
+        }
+
+        // Update scale based on price
+        function updateScale() {
+            const asset = ASSETS[state.currentAsset];
+            const price = state.assetsData[state.currentAsset].price;
+            const baseScale = asset.baseScale;
+            
+            const newScale = price >= baseScale ? baseScale * 2 : baseScale;
+            
+            if (asset.scale !== newScale) {
+                asset.scale = newScale;
+                updatePriceLabels();
+            }
+        }
+
+        // Update asset label
+        function updateAssetLabel() {
+            if (!elements.assetLabel) return;
+            
+            const asset = ASSETS[state.currentAsset];
+            elements.assetLabel.textContent = asset.symbol;
+            elements.assetLabel.style.color = asset.color;
+        }
+
+        // Initialize
+        async function init() {
+            // Setup donation page
+            setupDonationPage();
+            
+            // Initial setup
+            updateOrientationDisplay();
+            createClock();
+            
+            // Setup touch handlers
+            setupTouchHandler();
+            setupSwipeHandlers();
+            
+            // Listen for orientation changes
+            window.addEventListener('resize', handleOrientationChange);
+            
+            // Network status handling
+            window.addEventListener('online', () => {
+                elements.status.textContent = 'Reconnecting...';
+                elements.status.style.opacity = '0.5';
+                elements.status.classList.remove('offline');
+                fetchAllPrices();
+            });
+
+            window.addEventListener('offline', () => {
+                elements.status.textContent = 'Offline';
+                elements.status.style.opacity = '0.1';
+                elements.status.classList.add('offline');
+            });
+
+            // Initial data fetch
+            await fetchAllPrices();
+            
+            // Update every 15 seconds
+            setInterval(() => {
+                if (checkConnectivity()) {
+                    fetchAllPrices();
+                }
+            }, CONFIG.UPDATE_INTERVAL);
+            
+            // Start clock animation if in portrait
+            if (!state.isLandscape) {
+                requestAnimationFrame(updateClock);
+            }
+        }
+
+        // Check connectivity
+        function checkConnectivity() {
+            if (!navigator.onLine) {
+                elements.status.textContent = 'Offline';
+                elements.status.style.opacity = '0.1';
+                elements.status.classList.add('offline');
+                return false;
+            }
+            return true;
+        }
+
+        // Format price with Italian/European format
+        function formatPrice(number) {
+            // For SOL, we might want fewer decimals if price is low
+            const decimalPlaces = state.currentAsset === 'SOL' && number < 100 ? 3 : 2;
+            const fixedNumber = number.toFixed(decimalPlaces);
+            
+            const parts = fixedNumber.split('.');
+            let integerPart = parts[0];
+            const decimalPart = parts[1];
+            
+            integerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            
+            return integerPart + ',' + decimalPart;
+        }
+
+        // Fetch all prices (BTC, ETH, SOL)
+        async function fetchAllPrices() {
+            try {
+                elements.status.textContent = 'Updating...';
+                elements.status.style.opacity = '0.5';
+
+                // Try CoinGecko API for all three assets
+                try {
+                    const response = await fetch(
+                        'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true'
+                    );
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        // Update BTC data
+                        if (data.bitcoin && data.bitcoin.usd) {
+                            const newPrice = data.bitcoin.usd;
+                            const change = data.bitcoin.usd_24h_change || 0;
+                            
+                            state.assetsData.BTC.price = newPrice;
+                            state.assetsData.BTC.change = change;
+                            state.isLive = true;
+                            state.isLoading = false;
+                        }
+                        
+                        // Update ETH data
+                        if (data.ethereum && data.ethereum.usd) {
+                            const newPrice = data.ethereum.usd;
+                            const change = data.ethereum.usd_24h_change || 0;
+                            
+                            state.assetsData.ETH.price = newPrice;
+                            state.assetsData.ETH.change = change;
+                        }
+                        
+                        // Update SOL data
+                        if (data.solana && data.solana.usd) {
+                            const newPrice = data.solana.usd;
+                            const change = data.solana.usd_24h_change || 0;
+                            
+                            state.assetsData.SOL.price = newPrice;
+                            state.assetsData.SOL.change = change;
+                        }
+                        
+                        // Update scale if needed for current asset
+                        updateScale();
+                        
+                        // Hide loading
+                        if (elements.clockContainer) {
+                            const loading = elements.clockContainer.querySelector('.loading');
+                            if (loading) loading.style.display = 'none';
+                        }
+                        
+                        elements.status.textContent = 'Live';
+                        elements.status.style.opacity = '0.25';
+                        console.log(`Prices updated: BTC: $${state.assetsData.BTC.price}, ETH: $${state.assetsData.ETH.price}, SOL: $${state.assetsData.SOL.price}`);
+                        return;
+                    }
+                } catch (error) {
+                    console.log('CoinGecko API failed:', error);
+                }
+                
+                // If CoinGecko fails, try individual APIs
+                try {
+                    // Try Binance for BTC
+                    const btcResponse = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT');
+                    if (btcResponse.ok) {
+                        const btcData = await btcResponse.json();
+                        state.assetsData.BTC.price = parseFloat(btcData.lastPrice);
+                        state.assetsData.BTC.change = parseFloat(btcData.priceChangePercent);
+                        state.isLive = true;
+                        state.isLoading = false;
+                    }
+                    
+                    // Try Binance for ETH
+                    const ethResponse = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT');
+                    if (ethResponse.ok) {
+                        const ethData = await ethResponse.json();
+                        state.assetsData.ETH.price = parseFloat(ethData.lastPrice);
+                        state.assetsData.ETH.change = parseFloat(ethData.priceChangePercent);
+                    }
+                    
+                    // Try Binance for SOL
+                    const solResponse = await fetch('https://api.binance.com/api/v3/ticker/24hr?symbol=SOLUSDT');
+                    if (solResponse.ok) {
+                        const solData = await solResponse.json();
+                        state.assetsData.SOL.price = parseFloat(solData.lastPrice);
+                        state.assetsData.SOL.change = parseFloat(solData.priceChangePercent);
+                    }
+                    
+                    // Update scale if needed
+                    updateScale();
+                    
+                    if (elements.clockContainer) {
+                        const loading = elements.clockContainer.querySelector('.loading');
+                        if (loading) loading.style.display = 'none';
+                    }
+                    
+                    elements.status.textContent = 'Live (Binance)';
+                    elements.status.style.opacity = '0.25';
+                    return;
+                    
+                } catch (error) {
+                    console.log('Binance APIs failed:', error);
+                }
+                
+                // If all APIs fail, use simulated data
+                useSimulatedData();
+                
+            } catch (error) {
+                console.error('Unexpected error in fetchAllPrices:', error);
+                useSimulatedData();
+            }
+        }
+
+        // Simulated data fallback
+        function useSimulatedData() {
+            state.isLive = false;
+            state.isLoading = false;
+            
+            // Generate random changes for each asset
+            ['BTC', 'ETH', 'SOL'].forEach(asset => {
+                const changePercent = (Math.random() - 0.5) * 6;
+                const changeAmount = state.assetsData[asset].price * (changePercent / 100);
+                
+                let newPrice = state.assetsData[asset].price + changeAmount;
+                
+                // Keep prices in reasonable ranges
+                if (asset === 'BTC') {
+                    newPrice = Math.max(28000, Math.min(75000, newPrice));
+                } else if (asset === 'ETH') {
+                    newPrice = Math.max(1500, Math.min(5000, newPrice));
+                } else if (asset === 'SOL') {
+                    newPrice = Math.max(50, Math.min(300, newPrice));
+                }
+                
+                state.assetsData[asset].price = newPrice;
+                state.assetsData[asset].change = changePercent;
+            });
+            
+            updateScale();
+            
+            if (elements.clockContainer) {
+                const loading = elements.clockContainer.querySelector('.loading');
+                if (loading) loading.style.display = 'none';
+            }
+            
+            elements.status.textContent = 'Simulated';
+            elements.status.style.opacity = '0.15';
+        }
+
+        // Update clock hands
+        function updateClock() {
+            if (state.isLoading || state.isLandscape || !elements.hourHand || !elements.minuteHand) {
+                state.animationFrameId = requestAnimationFrame(updateClock);
+                return;
+            }
+
+            const asset = ASSETS[state.currentAsset];
+            const price = state.assetsData[state.currentAsset].price;
+            const scale = asset.scale;
+            
+            // Normalize price to current scale
+            const normalizedPrice = price % scale;
+            
+            // Calculate hour hand position
+            const hourScale = scale / 12;
+            const hourValue = normalizedPrice / hourScale;
+            const hourAngle = hourValue * 30;
+            
+            // Calculate minute hand position
+            const minuteScale = hourScale / 10;
+            const remainder = normalizedPrice % hourScale;
+            const minuteValue = remainder / minuteScale;
+            const minuteAngle = (minuteValue * 360) % 360;
+            
+            // Apply rotations
+            elements.hourHand.style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
+            elements.minuteHand.style.transform = `translateX(-50%) rotate(${minuteAngle}deg)`;
+            
+            // Update minute hand color based on change
+            updateMinuteHandColor();
+            
+            // Update display
+            updateDisplay(hourValue, remainder);
+            
+            state.animationFrameId = requestAnimationFrame(updateClock);
+        }
+
+        // Update minute hand color
+        function updateMinuteHandColor() {
+            if (!elements.minuteHand) return;
+            
+            const change = state.assetsData[state.currentAsset].change;
+            const asset = ASSETS[state.currentAsset];
+            
+            if (change >= 0) {
+                elements.minuteHand.style.background = '#00ff9d';
+                elements.minuteHand.style.boxShadow = '0 0 8px rgba(0, 255, 157, 0.5)';
+            } else {
+                elements.minuteHand.style.background = '#ff4d4d';
+                elements.minuteHand.style.boxShadow = '0 0 8px rgba(255, 77, 77, 0.5)';
+            }
+            
+            // Also update hour hand to match asset color
+            if (elements.hourHand) {
+                elements.hourHand.style.background = asset.color;
+                elements.hourHand.style.boxShadow = `0 0 6px ${asset.color}80`;
+            }
+        }
+
+        // Update clock hands immediately
+        function updateClockHands() {
+            if (!elements.hourHand || !elements.minuteHand) return;
+            
+            const asset = ASSETS[state.currentAsset];
+            const price = state.assetsData[state.currentAsset].price;
+            const scale = asset.scale;
+            
+            const normalizedPrice = price % scale;
+            const hourScale = scale / 12;
+            const hourValue = normalizedPrice / hourScale;
+            const hourAngle = hourValue * 30;
+            
+            const minuteScale = hourScale / 10;
+            const remainder = normalizedPrice % hourScale;
+            const minuteValue = remainder / minuteScale;
+            const minuteAngle = (minuteValue * 360) % 360;
+            
+            elements.hourHand.style.transform = `translateX(-50%) rotate(${hourAngle}deg)`;
+            elements.minuteHand.style.transform = `translateX(-50%) rotate(${minuteAngle}deg)`;
+            
+            updateMinuteHandColor();
+        }
+
+        // Update display
+        function updateDisplay(hourValue, remainder) {
+            const price = state.assetsData[state.currentAsset].price;
+            const change = state.assetsData[state.currentAsset].change;
+            const asset = ASSETS[state.currentAsset];
+            
+            // Format price
+            const formattedPrice = formatPrice(price);
+            elements.currentPrice.textContent = formattedPrice;
+            
+            // Format change
+            const changeFormatted = Math.abs(change).toFixed(2).replace('.', ',');
+            if (change >= 0) {
+                elements.priceChange.textContent = `+${changeFormatted}%`;
+                elements.priceChange.className = 'detail-value positive';
+            } else {
+                elements.priceChange.textContent = `-${changeFormatted}%`;
+                elements.priceChange.className = 'detail-value negative';
+            }
+            
+            // Calculate and display hour range
+            const currentHour = Math.floor(hourValue);
+            const scale = asset.scale;
+            const hourScale = scale / 12;
+            
+            const rangeStart = currentHour * hourScale;
+            let rangeEnd = (currentHour + 1) * hourScale;
+            
+            // Handle case when we're at the top of the scale
+            if (currentHour === 11) {
+                rangeEnd = scale;
+            }
+            
+            // Format range text based on asset
+            let rangeText;
+            if (asset.symbol === 'BTC') {
+                rangeText = `$${(rangeStart/1000).toFixed(0)}k-${(rangeEnd/1000).toFixed(0)}k`;
+            } else if (asset.symbol === 'ETH') {
+                if (scale === 6000) {
+                    rangeText = `$${(rangeStart/1000).toFixed(1)}k-${(rangeEnd/1000).toFixed(1)}k`;
+                } else {
+                    rangeText = `$${rangeStart}-${rangeEnd}`;
+                }
+            } else if (asset.symbol === 'SOL') {
+                rangeText = `$${rangeStart}-${rangeEnd}`;
+            }
+            
+            elements.hourRange.textContent = rangeText;
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', function() {
+            setTimeout(init, 100);
+        });
+    </script>
+</body>
+</html>
