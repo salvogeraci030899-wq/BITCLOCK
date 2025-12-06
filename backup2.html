@@ -399,6 +399,8 @@
             min-height: 300px;
             touch-action: manipulation;
             cursor: pointer;
+            /* Sposta solo l'orologio e il selettore 1cm più in alto */
+            margin-top: -1cm;
         }
 
         /* Clock container - will be completely recreated */
@@ -678,6 +680,8 @@
             .clock-wrapper {
                 width: 90vmin;
                 height: 90vmin;
+                /* Riduci lo spostamento su schermi piccoli */
+                margin-top: -0.8cm;
             }
             
             .title {
@@ -781,6 +785,17 @@
         @media (orientation: landscape) {
             .donation-overlay {
                 display: none !important;
+            }
+            
+            .clock-wrapper {
+                margin-top: 0;
+            }
+        }
+
+        /* Schermi corti - riduci lo spostamento */
+        @media (max-height: 700px) {
+            .clock-wrapper {
+                margin-top: -0.8cm;
             }
         }
 
