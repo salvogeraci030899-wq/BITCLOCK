@@ -370,7 +370,6 @@
             width: 100%;
             height: 100%;
             position: relative;
-            margin-top: -1cm;
         }
 
         .title {
@@ -400,6 +399,8 @@
             min-height: 300px;
             touch-action: manipulation;
             cursor: pointer;
+            /* Sposta solo l'orologio e il selettore 1cm più in alto */
+            margin-top: -1cm;
         }
 
         /* Clock container - will be completely recreated */
@@ -519,7 +520,6 @@
             bottom: 50px;
             text-align: center;
             transition: all 0.3s ease;
-            margin-top: 1cm;
         }
 
         .current-price {
@@ -673,14 +673,6 @@
             .asset-selector-below {
                 display: none !important;
             }
-            
-            .container {
-                margin-top: 0;
-            }
-            
-            .price-display {
-                margin-top: 0;
-            }
         }
 
         /* Portrait mode adjustments */
@@ -688,6 +680,8 @@
             .clock-wrapper {
                 width: 90vmin;
                 height: 90vmin;
+                /* Riduci lo spostamento su schermi piccoli */
+                margin-top: -0.8cm;
             }
             
             .title {
@@ -702,7 +696,6 @@
             
             .price-display {
                 bottom: 40px;
-                margin-top: 0.8cm;
             }
             
             .asset-selector-below {
@@ -778,10 +771,6 @@
             .copy-hint {
                 margin-top: 3px;
             }
-            
-            .container {
-                margin-top: -0.8cm;
-            }
         }
 
         /* Small landscape devices */
@@ -797,16 +786,16 @@
             .donation-overlay {
                 display: none !important;
             }
+            
+            .clock-wrapper {
+                margin-top: 0;
+            }
         }
 
-        /* Adatta per schermi corti */
+        /* Schermi corti - riduci lo spostamento */
         @media (max-height: 700px) {
-            .container {
+            .clock-wrapper {
                 margin-top: -0.8cm;
-            }
-            
-            .price-display {
-                margin-top: 0.8cm;
             }
         }
 
